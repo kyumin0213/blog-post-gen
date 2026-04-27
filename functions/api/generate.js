@@ -23,7 +23,7 @@ export async function onRequestPost(context) {
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-6",
-        max_tokens: 6000,
+        max_tokens: 8000,
         system: systemPrompt,
         messages: [{ role: "user", content: userMessage }],
       }),

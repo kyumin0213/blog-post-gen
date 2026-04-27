@@ -1199,9 +1199,22 @@ JSON 외 텍스트 절대 금지.
     const data = await res.json();
     const text = data.content?.[0]?.text ?? '';
     try {
-      const clean = text.replace(/```json|```/g, '').trim();
+      // 1차: 코드블록 제거 후 파싱
+      const clean = text.replace(/```json\s*|```/g, '').trim();
       const match = clean.match(/\{[\s\S]*\}/);
-      return JSON.parse(match ? match[0] : clean);
+      const candidate = match ? match[0] : clean;
+      try {
+        return JSON.parse(candidate);
+      } catch (_) {
+        // 2차: 제어문자 정리 후 재시도
+        const sanitized = candidate
+          .replace(/[\u0000-\u001F\u007F]/g, m => m === '\n' ? '\\n' : m === '\t' ? '\\t' : '')
+          .replace(/(?<!\\)"/g, (m, offset, str) => {
+            // JSON 구조 밖의 따옴표는 건드리지 않음 — 단순히 재시도
+            return m;
+          });
+        return JSON.parse(sanitized);
+      }
     } catch (e) {
       throw new Error('JSON_PARSE_ERROR');
     }
