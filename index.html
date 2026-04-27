@@ -3,26 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>블로그 포스팅 생성기</title>
+  <title>SNS 포스팅 생성기</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:      #FAFAFA;
-      --white:   #FFFFFF;
-      --blue:    #1A6DFF;
-      --blue-lt: #EBF2FF;
-      --red:     #FF4444;
-      --green:   #00C48C;
-      --orange:  #FF8C00;
-      --text:    #111111;
-      --text-2:  #555555;
-      --text-3:  #999999;
-      --border:  #E2E2E2;
-      --r:       10px;
-      --r-sm:    7px;
+      --bg:       #FAFAFA;
+      --white:    #FFFFFF;
+      --blue:     #1A6DFF;
+      --blue-lt:  #EBF2FF;
+      --red:      #FF4444;
+      --green:    #00C48C;
+      --cg:       #2E6B4F;   /* card-green */
+      --cg-h:     #1F5038;
+      --cg-lt:    #E5F2EC;
+      --cg-pale:  #F0F9F4;
+      --orange:   #FF8C00;
+      --text:     #111111;
+      --text-2:   #555555;
+      --text-3:   #999999;
+      --border:   #E2E2E2;
+      --r:        10px;
+      --r-sm:     7px;
+      --r-md:     14px;
+      --r-lg:     20px;
+      --r-xs:     5px;
     }
 
     html { scroll-behavior: smooth; }
@@ -44,7 +51,34 @@
       letter-spacing: -0.5px;
       margin-bottom: 4px;
     }
-    .subtitle { font-size: 13px; color: var(--text-3); margin-bottom: 24px; }
+    .subtitle { font-size: 13px; color: var(--text-3); margin-bottom: 16px; }
+
+    /* ── 탭 네비 ── */
+    .tab-nav {
+      display: flex;
+      gap: 4px;
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r);
+      padding: 4px;
+      margin-bottom: 16px;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 9px 8px;
+      border: none;
+      border-radius: var(--r-sm);
+      font-size: 13px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      color: var(--text-3);
+      background: transparent;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .tab-btn.active { background: var(--blue); color: #fff; }
+    .tab-btn:not(.active):hover { color: var(--text); background: var(--bg); }
 
     /* ── 패널 ── */
     .panel {
@@ -70,9 +104,27 @@
       border-radius: 4px;
       padding: 2px 6px;
     }
+    .input-type-badge {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--cg);
+      background: var(--cg-lt);
+      padding: 3px 8px;
+      border-radius: 20px;
+    }
 
-    /* ── 폼 요소 ── */
+    /* ── 폼 ── */
     label { font-size: 12px; font-weight: 600; color: var(--text-2); display: block; margin-bottom: 5px; }
+    .form-label {
+      display: block;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.3px;
+      margin-bottom: 10px;
+    }
     input, select, textarea {
       width: 100%;
       padding: 10px 12px;
@@ -92,6 +144,20 @@
     .form-group { margin-bottom: 12px; }
     .form-group:last-child { margin-bottom: 0; }
     .char-count { font-size: 11px; color: var(--text-3); text-align: right; margin-top: 4px; }
+    .input-meta { display: flex; justify-content: flex-end; margin-top: 6px; }
+    .tip-box {
+      display: flex;
+      gap: 10px;
+      background: var(--cg-pale);
+      border: 1px solid #C3E0D0;
+      border-radius: var(--r-sm);
+      padding: 11px 14px;
+      font-size: 13px;
+      color: #2A5A40;
+      line-height: 1.65;
+      margin: 12px 0 16px;
+    }
+    .tip-icon { flex-shrink: 0; font-size: 14px; }
 
     /* ── 버튼 ── */
     .btn {
@@ -119,19 +185,32 @@
       padding: 6px 12px;
     }
     .btn-save { background: var(--blue-lt); color: var(--blue); font-size: 13px; padding: 9px 16px; }
-
-    /* ── 설정 패널 강조 (온보딩) ── */
-    .settings-panel.highlight { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26,109,255,0.12); }
-    .onboarding-note {
-      font-size: 12px;
-      color: var(--blue);
-      font-weight: 600;
-      margin-bottom: 12px;
-      display: none;
+    .btn-generate {
+      width: 100%;
+      padding: 15px 20px;
+      background: #0F1117;
+      color: #fff;
+      border: none;
+      border-radius: var(--r-md);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: -0.2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.18s, transform 0.15s;
     }
+    .btn-generate:hover:not(:disabled) { background: #1E2128; transform: translateY(-1px); }
+    .btn-generate:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── 설정 패널 강조 ── */
+    .settings-panel.highlight { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26,109,255,0.12); }
+    .onboarding-note { font-size: 12px; color: var(--blue); font-weight: 600; margin-bottom: 12px; display: none; }
     .onboarding-note.show { display: block; }
 
-    /* ── 결과 패널 ── */
+    /* ── 블로그 결과 패널 ── */
     .result-panel { display: none; }
     .result-panel.show { display: block; }
 
@@ -146,163 +225,55 @@
     .result-block { margin-bottom: 20px; }
     .result-block:last-child { margin-bottom: 0; }
 
-    /* 검색 의도 */
-    .intent-text {
-      font-size: 14px;
-      color: var(--text-2);
-      background: var(--bg);
-      border-radius: var(--r-sm);
-      padding: 10px 14px;
-      line-height: 1.6;
-    }
-
-    /* 키워드 태그 */
+    .intent-text { font-size: 14px; color: var(--text-2); background: var(--bg); border-radius: var(--r-sm); padding: 10px 14px; line-height: 1.6; }
     .keyword-tags { display: flex; flex-wrap: wrap; gap: 6px; }
-    .keyword-tag {
-      font-size: 12px;
-      font-weight: 600;
-      background: var(--blue-lt);
-      color: var(--blue);
-      border-radius: 20px;
-      padding: 4px 10px;
-    }
-
-    /* 제목 후보 */
+    .keyword-tag { font-size: 12px; font-weight: 600; background: var(--blue-lt); color: var(--blue); border-radius: 20px; padding: 4px 10px; }
     .title-options { display: flex; flex-direction: column; gap: 8px; }
-    .title-option {
-      padding: 12px 14px;
-      border: 1.5px solid var(--border);
-      border-radius: var(--r-sm);
-      font-size: 14px;
-      line-height: 1.5;
-      cursor: pointer;
-      transition: border-color 0.15s, background 0.15s;
-      user-select: none;
-    }
+    .title-option { padding: 12px 14px; border: 1.5px solid var(--border); border-radius: var(--r-sm); font-size: 14px; line-height: 1.5; cursor: pointer; transition: border-color 0.15s, background 0.15s; user-select: none; }
     .title-option:hover { border-color: var(--blue); background: var(--blue-lt); }
     .title-option.selected { border-color: var(--blue); background: var(--blue-lt); color: var(--blue); font-weight: 600; }
     .title-hint { font-size: 11px; color: var(--text-3); margin-top: 5px; }
-
-    /* 본문 */
     .body-wrap { position: relative; }
     .body-textarea { min-height: 220px; font-size: 13px; line-height: 1.75; }
     .body-actions { display: flex; justify-content: flex-end; margin-top: 6px; }
 
     /* 노출 점수 */
-    .score-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-    }
-    .score-badge {
-      font-size: 20px;
-      font-weight: 900;
-    }
+    .score-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .score-badge { font-size: 20px; font-weight: 900; }
     .score-badge.high { color: var(--green); }
-    .score-badge.mid { color: var(--orange); }
-    .score-badge.low { color: var(--red); }
-    .score-verdict {
-      font-size: 12px;
-      font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 20px;
-    }
+    .score-badge.mid  { color: var(--orange); }
+    .score-badge.low  { color: var(--red); }
+    .score-verdict { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
     .score-verdict.high { background: #E6FAF5; color: var(--green); }
-    .score-verdict.mid { background: #FFF4E6; color: var(--orange); }
-    .score-verdict.low { background: #FFE9E9; color: var(--red); }
+    .score-verdict.mid  { background: #FFF4E6; color: var(--orange); }
+    .score-verdict.low  { background: #FFE9E9; color: var(--red); }
     .score-items { display: flex; flex-direction: column; gap: 5px; }
-    .score-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      color: var(--text-2);
-    }
+    .score-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-2); }
     .score-item .icon { font-size: 13px; flex-shrink: 0; }
     .score-item .pts { margin-left: auto; font-weight: 700; color: var(--text-3); font-size: 11px; }
     .score-no-kw { font-size: 13px; color: var(--text-3); font-style: italic; }
 
     /* 금칙어 */
     .forbidden-wrap { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-    .forbidden-badge {
-      font-size: 12px;
-      font-weight: 700;
-      background: #FFE9E9;
-      color: var(--red);
-      border-radius: 20px;
-      padding: 3px 9px;
-    }
+    .forbidden-badge { font-size: 12px; font-weight: 700; background: #FFE9E9; color: var(--red); border-radius: 20px; padding: 3px 9px; }
     .forbidden-ok { font-size: 13px; color: var(--green); font-weight: 700; }
 
-    /* 해시태그 */
+    /* 해시태그 (블로그) */
     .hashtag-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
-    .hashtag {
-      font-size: 12px;
-      font-weight: 600;
-      background: var(--bg);
-      border: 1.5px solid var(--border);
-      color: var(--text-2);
-      border-radius: 20px;
-      padding: 4px 10px;
-    }
+    .hashtag { font-size: 12px; font-weight: 600; background: var(--bg); border: 1.5px solid var(--border); color: var(--text-2); border-radius: 20px; padding: 4px 10px; }
 
-    /* 다음 글 아이디어 */
+    /* 아이디어 */
     .idea-list { display: flex; flex-direction: column; gap: 7px; }
-    .idea-item {
-      padding: 10px 14px;
-      border: 1.5px solid var(--border);
-      border-radius: var(--r-sm);
-      font-size: 13px;
-      color: var(--text-2);
-      cursor: pointer;
-      transition: border-color 0.15s, background 0.15s;
-      line-height: 1.5;
-    }
+    .idea-item { padding: 10px 14px; border: 1.5px solid var(--border); border-radius: var(--r-sm); font-size: 13px; color: var(--text-2); cursor: pointer; transition: border-color 0.15s, background 0.15s; line-height: 1.5; }
     .idea-item:hover { border-color: var(--blue); background: var(--blue-lt); color: var(--blue); }
     .idea-hint { font-size: 11px; color: var(--text-3); margin-top: 5px; }
-
-    /* 전체 복사 */
     .copy-all-wrap { margin-top: 24px; }
 
-    /* ── 토스트 ── */
-    #toast {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: #1a1a1a;
-      color: #fff;
-      font-size: 13px;
-      font-weight: 600;
-      padding: 10px 20px;
-      border-radius: 24px;
-      opacity: 0;
-      transition: opacity 0.2s, transform 0.2s;
-      pointer-events: none;
-      z-index: 9999;
-      white-space: nowrap;
-    }
-    #toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-    #toast.warn { background: var(--red); }
-    #toast.success { background: var(--green); }
-
     /* ── 에러 박스 ── */
-    .error-box {
-      display: none;
-      background: #FFE9E9;
-      border: 1.5px solid var(--red);
-      color: var(--red);
-      font-size: 13px;
-      font-weight: 600;
-      border-radius: var(--r-sm);
-      padding: 12px 14px;
-      margin-bottom: 12px;
-    }
-    .error-box.show { display: block; }
+    .error-box { display: none; font-size: 13px; font-weight: 600; border-radius: var(--r-sm); padding: 12px 14px; margin-bottom: 12px; }
+    .error-box.show, .error-box.visible { display: flex; gap: 8px; align-items: flex-start; }
+    .error-box-blog { background: #FFE9E9; border: 1.5px solid var(--red); color: var(--red); }
+    .error-box-tab  { background: #FFF1F0; border: 1.5px solid #FFCCC7; color: #CF1322; }
 
     /* ── 스피너 ── */
     .spinner {
@@ -312,44 +283,200 @@
       border-radius: 50%;
       animation: spin 0.6s linear infinite;
       display: inline-block;
+      flex-shrink: 0;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ── 로컬 안내 ── */
-    .local-notice {
-      background: #FFF4E6;
-      border: 1.5px solid var(--orange);
-      color: #7A4500;
-      font-size: 12px;
-      border-radius: var(--r-sm);
-      padding: 10px 14px;
-      margin-bottom: 16px;
-    }
+    .local-notice { background: #FFF4E6; border: 1.5px solid var(--orange); color: #7A4500; font-size: 12px; border-radius: var(--r-sm); padding: 10px 14px; margin-bottom: 16px; }
     .local-notice strong { font-weight: 700; }
+
+    /* ── 토스트 ── */
+    #toast {
+      position: fixed;
+      bottom: 24px; left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #1a1a1a;
+      color: #fff;
+      font-size: 13px; font-weight: 600;
+      padding: 10px 20px;
+      border-radius: 24px;
+      opacity: 0;
+      transition: opacity 0.2s, transform 0.2s;
+      pointer-events: none;
+      z-index: 9999;
+      white-space: nowrap;
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    #toast.warn { background: var(--red); }
+    #toast.success { background: var(--green); }
+
+    /* ═══════════════════════════
+       INSTAGRAM + CARD NEWS 공통
+    ═══════════════════════════ */
+    .result-section { display: none; margin-top: 16px; }
+    .result-section.visible { display: block; animation: fadeUp 0.3s ease; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    .result-card {
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-lg);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .result-card-section { padding: 18px 22px; border-bottom: 1px solid var(--border); }
+    .result-card-section:last-child { border-bottom: none; }
+    .section-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+
+    /* 검색 의도 뱃지 */
+    .intent-badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; letter-spacing: 0.2px; }
+    .intent-badge.info    { background: #EEF3FF; color: #1A3DB5; }
+    .intent-badge.problem { background: #FFF4ED; color: #B84B00; }
+    .intent-badge.compare { background: #F5F0FF; color: #5B21B6; }
+    .intent-badge.local   { background: var(--cg-lt); color: var(--cg-h); }
+
+    /* 키워드 그룹 */
+    .kw-groups { display: flex; flex-direction: column; gap: 10px; }
+    .kw-group { display: flex; align-items: flex-start; gap: 10px; }
+    .kw-group-name { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-3); padding-top: 5px; min-width: 36px; flex-shrink: 0; }
+    .kw-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .kw-chip { font-size: 12px; font-weight: 600; padding: 4px 11px; border-radius: 20px; line-height: 1; }
+    .kw-chip.main { background: #0F1117; color: #fff; }
+    .kw-chip.sub  { background: #EEF3FF; color: #1A3DB5; border: 1px solid #C7D7FF; }
+    .kw-chip.conv { background: #FEF4E6; color: #B8772C; border: 1px solid #F5D9A8; }
+
+    /* 제목/훅 목록 */
+    .title-list { display: flex; flex-direction: column; gap: 7px; }
+    .title-item { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: var(--r-md); background: var(--bg); cursor: pointer; transition: border-color 0.15s, background 0.15s; text-align: left; width: 100%; }
+    .title-item:hover { border-color: var(--cg); background: var(--cg-pale); }
+    .title-item.selected { border-color: var(--cg); background: var(--cg-lt); }
+    .title-num { width: 20px; height: 20px; border-radius: 50%; background: var(--border); color: var(--text-3); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; flex-shrink: 0; margin-top: 2px; transition: background 0.15s, color 0.15s; }
+    .title-item.selected .title-num { background: var(--cg); color: #fff; }
+    .title-text { font-size: 14px; line-height: 1.6; color: var(--text); font-weight: 500; flex: 1; }
+
+    /* 본문 표시 */
+    .content-display { background: var(--bg); border: 1.5px solid var(--border); border-radius: var(--r-md); padding: 16px; font-size: 14px; line-height: 1.9; color: var(--text-2); white-space: pre-wrap; word-break: keep-all; max-height: 380px; overflow-y: auto; }
+    .content-display::-webkit-scrollbar { width: 4px; }
+    .content-display::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    .instagram-caption-display { background: var(--bg); border: 1.5px solid var(--border); border-radius: var(--r-md); padding: 16px; font-size: 15px; line-height: 1.9; color: var(--text-2); white-space: pre-wrap; word-break: keep-all; }
+
+    /* 해시태그 pills */
+    .hashtag-pill { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 20px; background: var(--bg); color: var(--text-2); border: 1px solid var(--border); }
+
+    /* CTA 목록 */
+    .cta-list { display: flex; flex-direction: column; gap: 6px; }
+    .cta-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 14px; background: var(--bg); border: 1.5px solid var(--border); border-radius: var(--r-sm); font-size: 13px; color: var(--text-2); line-height: 1.5; cursor: pointer; transition: border-color 0.15s, background 0.15s; text-align: left; width: 100%; font-family: inherit; }
+    .cta-item:hover { border-color: var(--cg); background: var(--cg-lt); color: var(--cg-h); }
+    .cta-item-icon { color: var(--text-3); font-size: 11px; flex-shrink: 0; }
+
+    /* 관련 글 */
+    .related-list { display: flex; flex-direction: column; gap: 6px; }
+    .related-item { display: flex; align-items: center; gap: 10px; padding: 11px 14px; background: var(--bg); border: 1.5px solid var(--border); border-radius: var(--r-sm); font-size: 13px; color: var(--text-2); cursor: pointer; transition: all 0.15s; text-align: left; width: 100%; font-family: inherit; }
+    .related-item:hover { border-color: var(--cg); background: var(--cg-lt); color: var(--cg-h); transform: translateX(3px); }
+    .related-item::before { content: '→'; color: var(--text-3); flex-shrink: 0; }
+
+    /* 복사 버튼 */
+    .btn-copy { display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px; background: transparent; border: 1.5px solid var(--border); border-radius: var(--r-xs); font-size: 12px; font-weight: 600; color: var(--text-3); cursor: pointer; transition: all 0.15s; white-space: nowrap; flex-shrink: 0; }
+    .btn-copy:hover, .btn-copy.copied { border-color: var(--cg); color: var(--cg); background: var(--cg-lt); }
+
+    /* 전체 복사 바 */
+    .cta-bar { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--r-lg); box-shadow: 0 2px 8px rgba(0,0,0,0.06); padding: 16px 22px; display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .btn-copy-all { flex: 1; padding: 13px 16px; background: var(--cg); color: #fff; border: none; border-radius: var(--r-md); font-size: 14px; font-weight: 700; cursor: pointer; transition: background 0.18s, transform 0.15s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn-copy-all:hover { background: var(--cg-h); transform: translateY(-1px); }
+    .btn-copy-all.copied { background: #1A8C5F; }
+    .cta-hint { font-size: 12px; color: var(--text-3); line-height: 1.4; }
+
+    /* ALT 텍스트 */
+    .alt-text-list { display: flex; flex-direction: column; gap: 8px; }
+    .alt-text-item { background: var(--bg); border: 1.5px solid var(--border); border-radius: var(--r-sm); padding: 10px 14px; font-size: 13px; color: var(--text-2); line-height: 1.6; display: flex; gap: 10px; align-items: flex-start; }
+    .alt-num { font-size: 11px; font-weight: 700; color: var(--cg); flex-shrink: 0; margin-top: 2px; }
+
+    /* 카드 액션 바 */
+    .card-action-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+    .btn-card-action { flex: 1; min-width: 120px; display: flex; align-items: center; justify-content: center; gap: 6px; background: var(--cg); color: #fff; border: none; border-radius: var(--r-sm); padding: 11px 16px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.18s; }
+    .btn-card-action:hover { background: var(--cg-h); }
+    .btn-card-action.secondary { background: transparent; color: var(--cg); border: 1.5px solid var(--cg); }
+    .btn-card-action.secondary:hover { background: var(--cg-pale); }
+
+    /* ═══════════════════════════
+       PHOTO UPLOAD (Instagram)
+    ═══════════════════════════ */
+    .photo-upload-zone { border: 2px dashed var(--border); border-radius: var(--r-md); padding: 28px 16px; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; background: var(--bg); margin-bottom: 16px; overflow: hidden; position: relative; }
+    .photo-upload-zone:hover { border-color: var(--cg); background: var(--cg-pale); }
+    .photo-upload-zone.has-photo { border: none; padding: 0; }
+    .photo-upload-label { display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--text-3); font-size: 13px; pointer-events: none; }
+    .photo-upload-label svg { opacity: 0.5; }
+    .photo-upload-zone img { width: 100%; max-height: 280px; object-fit: cover; border-radius: var(--r-md); display: block; }
+    .photo-change-btn { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.55); color: #fff; border: none; border-radius: 20px; padding: 5px 13px; font-size: 12px; cursor: pointer; backdrop-filter: blur(4px); }
+
+    /* ═══════════════════════════
+       INSTAGRAM PREVIEW
+    ═══════════════════════════ */
+    .ig-post-preview { border: 1.5px solid var(--border); border-radius: var(--r-md); overflow: hidden; background: #fff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    .ig-post-header { display: flex; align-items: center; gap: 10px; padding: 11px 14px; }
+    .ig-avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 13px; font-weight: 700; }
+    .ig-username { font-size: 13.5px; font-weight: 600; color: #000; line-height: 1.3; }
+    .ig-location { font-size: 11px; color: #555; }
+    .ig-post-img { width: 100%; max-height: 320px; object-fit: cover; display: block; }
+    .ig-post-img-placeholder { width: 100%; height: 180px; background: #f3f3f3; display: flex; align-items: center; justify-content: center; color: #bbb; font-size: 13px; }
+    .ig-post-actions { display: flex; align-items: center; gap: 14px; padding: 10px 14px 4px; }
+    .ig-post-actions svg { cursor: pointer; color: #262626; }
+    .ig-post-caption-wrap { padding: 6px 14px 14px; }
+    .ig-post-caption-username { font-size: 13.5px; font-weight: 600; color: #000; margin-right: 5px; }
+    .ig-post-caption-text { font-size: 13.5px; color: #262626; white-space: pre-wrap; line-height: 1.7; }
+    .ig-post-hashtags { font-size: 13px; color: #00376b; margin-top: 6px; line-height: 1.7; }
+
+    /* ═══════════════════════════
+       CARD NEWS
+    ═══════════════════════════ */
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 14px; margin-bottom: 8px; }
+    .card-preview-wrap { position: relative; }
+    .card-preview { aspect-ratio: 4/5; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 18px rgba(0,0,0,0.15); display: flex; flex-direction: column; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; }
+    .card-preview:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(0,0,0,0.22); }
+    .card-visual { flex: 0 0 62%; position: relative; overflow: hidden; background-size: cover; background-position: center; background-color: var(--cg); background-image: linear-gradient(160deg, var(--cg) 0%, #52B788 100%); }
+    .card-visual-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.38) 0%, rgba(0,0,0,0.08) 50%, rgba(0,0,0,0.22) 100%); pointer-events: none; }
+    .card-visual-meta { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; padding: 7px 9px; z-index: 2; }
+    .card-visual-num { font-size: 8.5px; font-weight: 700; color: rgba(255,255,255,0.9); letter-spacing: 0.5px; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+    .card-visual-brand { font-size: 7.5px; font-weight: 700; color: rgba(255,255,255,0.9); letter-spacing: 0.3px; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+    .card-text-area { flex: 1; background: #fff; display: flex; flex-direction: column; justify-content: center; padding: 9px 10px 7px; gap: 4px; text-align: center; }
+    .card-text-title { font-size: 11.5px; font-weight: 800; color: #0F1117; line-height: 1.35; word-break: keep-all; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+    .card-text-body { font-size: 8.5px; color: #4C4C4C; line-height: 1.55; word-break: keep-all; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+    .card-text-location { font-size: 7px; color: var(--cg); font-weight: 600; margin-top: 2px; letter-spacing: 0.3px; }
+    .card-dl-btn { position: absolute; top: 7px; right: 7px; background: rgba(0,0,0,0.5); color: #fff; border: none; border-radius: 6px; padding: 3px 8px; font-size: 10px; cursor: pointer; backdrop-filter: blur(4px); opacity: 0; transition: opacity 0.15s; z-index: 10; }
+    .card-preview-wrap:hover .card-dl-btn { opacity: 1; }
+    .card-img-replace-btn { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.55); color: #fff; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; padding: 3px 10px; font-size: 9px; cursor: pointer; backdrop-filter: blur(4px); z-index: 20; opacity: 0.45; transition: opacity 0.15s; white-space: nowrap; pointer-events: auto; }
+    .card-preview-wrap:hover .card-img-replace-btn { opacity: 1; }
+    .card-custom-badge { position: absolute; top: 7px; left: 7px; background: var(--cg); color: #fff; font-size: 7.5px; font-weight: 700; border-radius: 4px; padding: 2px 6px; z-index: 11; pointer-events: none; }
   </style>
 </head>
 <body>
 <div class="container">
 
-  <h1>📝 블로그 포스팅 생성기</h1>
-  <p class="subtitle">업체 정보를 입력하고 주제를 넣으면 네이버 블로그 포스팅을 자동으로 만들어줘요.</p>
+  <h1>📱 SNS 포스팅 생성기</h1>
+  <p class="subtitle">업체 설정 후 주제를 입력하면 블로그·인스타그램·카드뉴스를 자동으로 만들어줘요.</p>
 
-  <!-- 로컬 환경 안내 (Cloudflare Pages 배포 전에만 표시) -->
+  <!-- 로컬 환경 안내 -->
   <div class="local-notice" id="local-notice" style="display:none">
     <strong>⚠️ 로컬 환경입니다.</strong>
     API 호출은 Cloudflare Pages 배포 후 정상 동작합니다.
-    배포 명령: <code>npx wrangler pages deploy . --project-name blog-post-gen</code>
   </div>
 
-  <!-- ── 업체 설정 패널 ── -->
+  <!-- ── 탭 네비 ── -->
+  <div class="tab-nav">
+    <button class="tab-btn active" id="tab-blog"      onclick="switchTab('blog')">📝 네이버 블로그</button>
+    <button class="tab-btn"        id="tab-instagram"  onclick="switchTab('instagram')">📸 인스타그램</button>
+    <button class="tab-btn"        id="tab-card_news"  onclick="switchTab('card_news')">🃏 카드뉴스</button>
+  </div>
+
+  <!-- ── 업체 설정 (공통) ── -->
   <div class="panel settings-panel" id="settings-panel">
     <div class="panel-title">
       🏪 업체 설정
-      <span class="badge">localStorage 저장</span>
+      <span class="badge">모든 탭 공통 적용</span>
     </div>
-
     <p class="onboarding-note" id="onboarding-note">업체 정보를 먼저 입력해주세요</p>
-
     <div class="form-group">
       <label for="industry">업종</label>
       <select id="industry">
@@ -358,7 +485,6 @@
         <option value="beauty">미용실·네일·뷰티</option>
       </select>
     </div>
-
     <div class="form-row">
       <div class="form-group">
         <label for="biz-name">업체명</label>
@@ -369,107 +495,317 @@
         <input type="tel" id="phone" placeholder="예) 010-1234-5678">
       </div>
     </div>
-
     <div class="form-group">
       <label for="address">주소</label>
       <input type="text" id="address" placeholder="예) 서울 송파구 충민로 81-9 제이타워 3층">
     </div>
-
     <div style="display:flex; justify-content:flex-end; margin-top:4px;">
       <button class="btn btn-save" onclick="saveSettings()">설정 저장</button>
     </div>
   </div>
 
-  <!-- ── 블로그 탭 ── -->
-  <div class="panel">
-    <div class="panel-title">✍️ 블로그 포스팅</div>
+  <!-- ══════════ BLOG TAB ══════════ -->
+  <div id="section-blog">
 
-    <div class="form-group">
-      <label for="topic">주제 / 키워드</label>
-      <textarea id="topic" rows="3" maxlength="300"
-        placeholder="예) 장지역 필라테스 체험 후기"
-        oninput="updateCharCount()"></textarea>
-      <div class="char-count"><span id="char-count">0</span> / 300</div>
-    </div>
-
-    <div class="error-box" id="error-box"></div>
-
-    <button class="btn btn-primary" id="generate-btn" onclick="handleGenerate()">
-      포스팅 생성
-    </button>
-  </div>
-
-  <!-- ── 결과 패널 ── -->
-  <div class="panel result-panel" id="result-panel">
-
-    <!-- 1. 검색 의도 -->
-    <div class="result-block">
-      <div class="section-label">검색 의도</div>
-      <div class="intent-text" id="result-intent"></div>
-    </div>
-
-    <!-- 2. 핵심 키워드 -->
-    <div class="result-block">
-      <div class="section-label">핵심 키워드</div>
-      <div class="keyword-tags" id="result-keywords"></div>
-    </div>
-
-    <!-- 3. 제목 후보 -->
-    <div class="result-block">
-      <div class="section-label">제목 후보 — 클릭해서 선택</div>
-      <div class="title-options" id="result-titles"></div>
-      <p class="title-hint">선택된 제목이 전체 복사에 포함됩니다.</p>
-    </div>
-
-    <!-- 4. 본문 -->
-    <div class="result-block">
-      <div class="section-label">본문</div>
-      <div class="body-wrap">
-        <textarea class="body-textarea" id="result-body" readonly></textarea>
+    <div class="panel">
+      <div class="panel-title">✍️ 블로그 포스팅</div>
+      <div class="form-group">
+        <label for="topic">주제 / 키워드</label>
+        <textarea id="topic" rows="3" maxlength="300"
+          placeholder="예) 장지역 필라테스 체험 후기&#10;예) 성수 감성카페 주차 되는 곳&#10;예) 홍대 네일샵 가격 솔직 후기"
+          oninput="updateCharCount()"></textarea>
+        <div class="char-count"><span id="char-count">0</span> / 300</div>
       </div>
-      <div class="body-actions">
-        <button class="btn btn-secondary" onclick="copyText('result-body')">📋 복사</button>
+      <div class="error-box error-box-blog" id="error-box"></div>
+      <button class="btn btn-primary" id="generate-btn" onclick="handleGenerate()">포스팅 생성</button>
+    </div>
+
+    <!-- 블로그 결과 -->
+    <div class="panel result-panel" id="result-panel">
+      <div class="result-block">
+        <div class="section-label">검색 의도</div>
+        <div class="intent-text" id="result-intent"></div>
       </div>
-    </div>
-
-    <!-- 5. 노출 점수 -->
-    <div class="result-block">
-      <div class="section-label">노출 점수</div>
-      <div id="result-score"></div>
-    </div>
-
-    <!-- 6. 금칙어 감지 -->
-    <div class="result-block">
-      <div class="section-label">금칙어 감지</div>
-      <div class="forbidden-wrap" id="result-forbidden"></div>
-    </div>
-
-    <!-- 7. 해시태그 -->
-    <div class="result-block">
-      <div class="section-label">해시태그</div>
-      <div class="hashtag-wrap" id="result-hashtags"></div>
-      <div style="display:flex; justify-content:flex-end;">
-        <button class="btn btn-secondary" onclick="copyHashtags()">📋 복사</button>
+      <div class="result-block">
+        <div class="section-label">핵심 키워드</div>
+        <div class="keyword-tags" id="result-keywords"></div>
+      </div>
+      <div class="result-block">
+        <div class="section-label">제목 후보 — 클릭해서 선택</div>
+        <div class="title-options" id="result-titles"></div>
+        <p class="title-hint">선택된 제목이 전체 복사에 포함됩니다.</p>
+      </div>
+      <div class="result-block">
+        <div class="section-label">본문</div>
+        <div class="body-wrap">
+          <textarea class="body-textarea" id="result-body" readonly></textarea>
+        </div>
+        <div class="body-actions">
+          <button class="btn btn-secondary" onclick="copyEl('result-body')">📋 복사</button>
+        </div>
+      </div>
+      <div class="result-block">
+        <div class="section-label">노출 점수</div>
+        <div id="result-score"></div>
+      </div>
+      <div class="result-block">
+        <div class="section-label">금칙어 감지</div>
+        <div class="forbidden-wrap" id="result-forbidden"></div>
+      </div>
+      <div class="result-block">
+        <div class="section-label">해시태그</div>
+        <div class="hashtag-wrap" id="result-hashtags"></div>
+        <div style="display:flex; justify-content:flex-end;">
+          <button class="btn btn-secondary" onclick="copyHashtags()">📋 복사</button>
+        </div>
+      </div>
+      <div class="result-block">
+        <div class="section-label">다음 글 아이디어</div>
+        <div class="idea-list" id="result-ideas"></div>
+        <p class="idea-hint">💡 클릭하면 바로 이 주제로 생성할 수 있어요</p>
+      </div>
+      <div class="copy-all-wrap">
+        <button class="btn btn-primary" onclick="copyAll()">📋 전체 복사 (제목 + 본문 + 해시태그)</button>
       </div>
     </div>
 
-    <!-- 8. 다음 글 아이디어 -->
-    <div class="result-block">
-      <div class="section-label">다음 글 아이디어</div>
-      <div class="idea-list" id="result-ideas"></div>
-      <p class="idea-hint">💡 클릭하면 바로 이 주제로 생성할 수 있어요</p>
+  </div><!-- /section-blog -->
+
+  <!-- ══════════ INSTAGRAM TAB ══════════ -->
+  <div id="section-instagram" style="display:none">
+
+    <div class="panel">
+      <div class="panel-title">
+        <span class="input-type-badge">Instagram</span>
+      </div>
+
+      <!-- 사진 업로드 -->
+      <input type="file" id="photo-file-input" accept="image/*" style="display:none" onchange="handlePhotoSelect(this.files[0])">
+      <div class="photo-upload-zone" id="photo-upload-zone"
+        onclick="document.getElementById('photo-file-input').click()"
+        ondragover="event.preventDefault()"
+        ondrop="handlePhotoDrop(event)">
+        <div class="photo-upload-label" id="photo-upload-label">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <span>사진을 선택하거나 끌어다 놓으세요</span>
+        </div>
+        <img id="photo-preview-img" style="display:none" alt="선택한 사진">
+        <button class="photo-change-btn" id="photo-change-btn" style="display:none"
+          onclick="event.stopPropagation(); document.getElementById('photo-file-input').click()">사진 변경</button>
+      </div>
+
+      <label class="form-label" for="instagram-input">주제 / 분위기 설명</label>
+      <textarea id="instagram-input" maxlength="300"
+        placeholder="예) 허리 통증 있는 직장인&#10;예) 봄 햇살 가득한 카페 내부&#10;예) 봄 컬러 네일아트 시즌 추천"
+        oninput="updateCharCountTab('instagram')"></textarea>
+      <div class="input-meta">
+        <span class="char-count"><span id="instagram-count">0</span>/300</span>
+      </div>
+      <div class="tip-box">
+        <span class="tip-icon">💡</span>
+        <span>분위기나 감정도 알려주시면 더 감성적인 캡션이 만들어져요.</span>
+      </div>
+      <button class="btn-generate" id="instagram-btn" onclick="generateTab('instagram')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        인스타 캡션 생성
+      </button>
     </div>
 
-    <!-- 9. 전체 복사 -->
-    <div class="copy-all-wrap">
-      <button class="btn btn-primary" onclick="copyAll()">📋 전체 복사 (제목 + 본문 + 해시태그)</button>
+    <div class="error-box error-box-tab" id="instagram-error">⚠️ <span id="instagram-error-msg"></span></div>
+
+    <!-- 인스타 결과 -->
+    <div class="result-section" id="instagram-result">
+
+      <!-- 인스타 미리보기 -->
+      <div class="result-card">
+        <div class="result-card-section">
+          <div class="section-label" style="margin-bottom:12px">인스타 미리보기</div>
+          <div class="ig-post-preview">
+            <div class="ig-post-header">
+              <div class="ig-avatar" id="ig-avatar-letter">B</div>
+              <div>
+                <div class="ig-username" id="ig-biz-name">업체명</div>
+                <div class="ig-location" id="ig-biz-address">주소</div>
+              </div>
+            </div>
+            <div class="ig-post-img-placeholder" id="ig-img-placeholder">사진을 선택하면 여기에 표시됩니다</div>
+            <img class="ig-post-img" id="ig-preview-image" style="display:none" alt="">
+            <div class="ig-post-actions">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin-left:auto"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <div class="ig-post-caption-wrap">
+              <span class="ig-post-caption-username" id="ig-caption-username">업체명</span>
+              <span class="ig-post-caption-text" id="ig-preview-caption"></span>
+              <div class="ig-post-hashtags" id="ig-preview-hashtags"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 캡션 본문 -->
+      <div class="result-card">
+        <div class="result-card-section">
+          <div class="section-row">
+            <div class="section-label">본문</div>
+            <button class="btn-copy" onclick="copyEl('instagram-caption', this)">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              복사
+            </button>
+          </div>
+          <div class="instagram-caption-display" id="instagram-caption"></div>
+        </div>
+      </div>
+
+      <!-- 훅 대체안 -->
+      <div class="result-card">
+        <div class="result-card-section">
+          <div class="section-label" style="margin-bottom:12px">첫 줄 훅 대체안 — 클릭하면 본문 앞에 적용</div>
+          <div class="title-list" id="instagram-hooks"></div>
+        </div>
+      </div>
+
+      <!-- 해시태그 -->
+      <div class="result-card">
+        <div class="result-card-section">
+          <div class="section-row">
+            <div class="section-label">해시태그</div>
+            <button class="btn-copy" onclick="copyText(instagramHashtagsText, this)">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              복사
+            </button>
+          </div>
+          <div class="hashtag-wrap" id="instagram-hashtags"></div>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="result-card">
+        <div class="result-card-section">
+          <div class="section-label" style="margin-bottom:12px">행동 유도 문구 — 클릭하면 복사</div>
+          <div class="cta-list" id="instagram-cta"></div>
+        </div>
+      </div>
+
+      <!-- 전체 복사 -->
+      <div class="cta-bar">
+        <div class="cta-hint">본문 + 해시태그<br>한번에 복사</div>
+        <button class="btn-copy-all" id="instagram-copy-all" onclick="copyAllInstagram()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          전체 복사
+        </button>
+      </div>
+
+    </div><!-- /instagram-result -->
+  </div><!-- /section-instagram -->
+
+  <!-- ══════════ CARD NEWS TAB ══════════ -->
+  <div id="section-card_news" style="display:none">
+
+    <div class="panel">
+      <div class="panel-title">
+        <span class="input-type-badge">카드뉴스</span>
+      </div>
+      <label class="form-label" for="card_news-input">주제 / 키워드</label>
+      <textarea id="card_news-input" maxlength="300"
+        placeholder="예) 허리 통증 있는 직장인을 위한 필라테스&#10;예) 봄 신메뉴 소개 — 딸기 라테&#10;예) 봄 컬러 네일 트렌드"
+        oninput="updateCharCountTab('card_news')"></textarea>
+      <div class="input-meta">
+        <span class="char-count"><span id="card_news-count">0</span>/300</span>
+      </div>
+      <div class="tip-box">
+        <span class="tip-icon">💡</span>
+        <span>주제를 구체적으로 쓸수록 카드 내용이 실용적으로 나옵니다.</span>
+      </div>
+      <button class="btn-generate" id="card_news-btn" onclick="generateTab('card_news')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+        카드뉴스 생성
+      </button>
     </div>
 
-  </div><!-- /result-panel -->
+    <div class="error-box error-box-tab" id="card_news-error">⚠️ <span id="card_news-error-msg"></span></div>
+
+    <!-- 카드뉴스 결과 -->
+    <div class="result-section" id="card_news-result">
+
+      <!-- 카드 7장 -->
+      <div class="result-card">
+        <div class="result-card-section">
+          <div class="section-row" style="margin-bottom:14px">
+            <div class="section-label">카드뉴스 7장</div>
+            <button class="btn-copy" onclick="downloadAllCards()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              전체 저장
+            </button>
+          </div>
+          <div class="card-grid" id="card-grid"></div>
+          <div class="card-action-bar" style="margin-top:12px">
+            <button class="btn-card-action" onclick="downloadAllCards()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              이미지 전체 저장 (7장)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 캡션 + 해시태그 -->
+      <div class="result-card">
+        <div class="result-card-section">
+          <div class="section-row">
+            <div class="section-label">롱폼 캡션</div>
+            <button class="btn-copy" onclick="copyEl('card-caption', this)">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              복사
+            </button>
+          </div>
+          <div class="instagram-caption-display" id="card-caption"></div>
+        </div>
+        <div class="result-card-section">
+          <div class="section-row">
+            <div class="section-label">해시태그</div>
+            <button class="btn-copy" onclick="copyText(cardNewsHashtagsText, this)">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              복사
+            </button>
+          </div>
+          <div class="hashtag-wrap" id="card-hashtags"></div>
+        </div>
+        <div class="result-card-section">
+          <div class="card-action-bar">
+            <button class="btn-card-action" onclick="copyText(cardNewsCaptionFull(), this)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              캡션 전체 복사 (본문+해시태그)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ALT 텍스트 -->
+      <div class="result-card">
+        <div class="result-card-section">
+          <div class="section-row" style="margin-bottom:14px">
+            <div class="section-label">ALT 텍스트 7개</div>
+            <button class="btn-copy" onclick="copyText(cardNewsAltAll(), this)">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              전체 복사
+            </button>
+          </div>
+          <div class="alt-text-list" id="card-alt-texts"></div>
+          <div class="card-action-bar" style="margin-top:14px">
+            <button class="btn-card-action secondary" onclick="copyText(cardNewsAltAll(), this)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              ALT 텍스트 전체 복사
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /card_news-result -->
+  </div><!-- /section-card_news -->
 
 </div><!-- /container -->
 
-<!-- 토스트 -->
 <div id="toast"></div>
 
 <script>
@@ -488,6 +824,7 @@
     "확실히", "절대적"
   ];
 
+  // ── 블로그 시스템 프롬프트 ──────────────────────────────────────────
   const SYSTEM_PROMPTS = {
     pilates: `너는 네이버 블로그 상위노출 전문 에디터다. 필라테스·헬스·요가 업종 전문.
 아래 규칙을 지켜서 JSON만 출력한다. 다른 말 하지 않는다. 코드블록 없이 순수 JSON만.
@@ -495,19 +832,17 @@
 [필수 규칙]
 1. 첫 100자: "안녕하세요" 절대 금지. 핵심 키워드+연관키워드로 즉시 시작
 2. 제목: 메인키워드1개 + 연관키워드1~2개 자연스럽게 조합 (1+2 공식)
-   예) "장지역 필라테스 처음이라면 알아야 할 5가지 (등록비, 효과, 복장)"
-3. 키워드 배치: 본문 처음·중간·끝. 다닥다닥 금지, 멀직하게
-4. 키워드 빈도: 6~9회 사이 유지, 10회 초과 금지
-5. 연관키워드·유사어·동의어 풍부하게 (체형교정, 자세교정, 코어강화, 소그룹, 체험권)
+3. 키워드 배치: 본문 처음·중간·끝. 멀직하게
+4. 키워드 빈도: 6~9회 이내, 10회 초과 금지
+5. 연관키워드·유사어 풍부하게 (체형교정, 자세교정, 코어강화, 소그룹, 체험권)
 6. MZ언어·줄임말 금지
-7. "해야합니다" → "해야돼요"
-8. 금칙어 금지: 최고/최저/최초/최대/추천/보장/무조건/100%/완벽
-9. 글자 수 1200자 이상
-10. 마지막 문단: 업체명+주소+전화번호+예약/문의 CTA 포함
-11. 효과 보장 표현 금지, 대신 "~에 도움이 돼요" 형태
+7. 금칙어 금지: 최고/최저/최초/최대/추천/보장/무조건/100%/완벽
+8. 글자 수 1200자 이상
+9. 마지막 문단: 업체명+주소+전화번호+예약/문의 CTA 포함
+10. 효과 보장 표현 금지, 대신 "~에 도움이 돼요" 형태
 
 [출력 형식 — 순수 JSON만]
-해시태그는 반드시 #을 포함한 형태로 정확히 10개 출력.
+해시태그 반드시 #포함, 정확히 10개.
 {"searchIntent":"","keywords":[],"titles":["","",""],"body":"","hashtags":["#태그1","#태그2","#태그3","#태그4","#태그5","#태그6","#태그7","#태그8","#태그9","#태그10"],"nextIdeas":["","",""]}`,
 
     cafe: `너는 네이버 블로그 상위노출 전문 에디터다. 카페·베이커리·디저트 업종 전문.
@@ -521,14 +856,13 @@
 4. 키워드 빈도: 6~9회 이내
 5. 연관키워드·유사어 풍부하게 (분위기좋은카페, 감성카페, 디저트맛집, 브런치, 주차)
 6. MZ언어·줄임말 금지
-7. "해야합니다" → "해야돼요"
-8. 금칙어 금지: 최고/최저/최초/최대/추천/보장/무조건/100%/완벽/제일맛있는
-9. 글자 수 1200자 이상
-10. 마지막 문단: 업체명+주소+전화번호+방문/예약 CTA 포함
-11. 본문에 인테리어 분위기, 대표 메뉴, 접근성(주차·대중교통) 묘사 포함
+7. 금칙어 금지: 최고/최저/최초/최대/추천/보장/무조건/100%/완벽/제일맛있는
+8. 글자 수 1200자 이상
+9. 마지막 문단: 업체명+주소+전화번호+방문/예약 CTA 포함
+10. 본문에 인테리어 분위기, 대표 메뉴, 접근성 묘사 포함
 
 [출력 형식 — 순수 JSON만]
-해시태그는 반드시 #을 포함한 형태로 정확히 10개 출력.
+해시태그 반드시 #포함, 정확히 10개.
 {"searchIntent":"","keywords":[],"titles":["","",""],"body":"","hashtags":["#태그1","#태그2","#태그3","#태그4","#태그5","#태그6","#태그7","#태그8","#태그9","#태그10"],"nextIdeas":["","",""]}`,
 
     beauty: `너는 네이버 블로그 상위노출 전문 에디터다. 미용실·네일·뷰티 업종 전문.
@@ -542,36 +876,188 @@
 4. 키워드 빈도: 6~9회 이내
 5. 연관키워드·유사어 풍부하게 (펌, 염색, 커트, 네일아트, 젤네일, 예약, 주차)
 6. MZ언어·줄임말 금지
-7. "해야합니다" → "해야돼요"
-8. 금칙어 금지: 최고/최저/최초/최대/추천/보장/무조건/100%/완벽/제일예쁜
-9. 글자 수 1200자 이상
-10. 마지막 문단: 업체명+주소+전화번호+예약/문의 CTA 포함
-11. 본문에 시술 과정, 결과 묘사, 분위기, 가격대 포함
+7. 금칙어 금지: 최고/최저/최초/최대/추천/보장/무조건/100%/완벽/제일예쁜
+8. 글자 수 1200자 이상
+9. 마지막 문단: 업체명+주소+전화번호+예약/문의 CTA 포함
+10. 본문에 시술 과정, 결과 묘사, 분위기, 가격대 포함
 
 [출력 형식 — 순수 JSON만]
-해시태그는 반드시 #을 포함한 형태로 정확히 10개 출력.
+해시태그 반드시 #포함, 정확히 10개.
 {"searchIntent":"","keywords":[],"titles":["","",""],"body":"","hashtags":["#태그1","#태그2","#태그3","#태그4","#태그5","#태그6","#태그7","#태그8","#태그9","#태그10"],"nextIdeas":["","",""]}`
   };
 
+  // ── 인스타그램 시스템 프롬프트 ──────────────────────────────────────────
+  const INSTAGRAM_PROMPTS = {
+    pilates: `너는 필라테스·헬스·요가 업체의 인스타그램 포스팅 생성 엔진이다.
+
+[핵심 원칙]
+1. 짧고 바로 읽힌다.
+2. 첫 줄에서 고객 고민을 바로 건드린다.
+3. 실제 상담실에서 설명해주는 느낌. 광고문 금지.
+4. DM·체험문의·저장으로 자연스럽게 이어진다.
+
+[글 구조]
+1. 첫 줄 훅: 고객 고민 한 줄 — 시선을 멈추게 한다.
+2. 공감/문제 제기: 왜 이 글이 필요한지 짧게.
+3. 핵심 포인트 3~5개: 리스트형, 길게 설명 금지.
+4. 상담 현장감: 실제 센터에서 자주 보는 장면. 과장 없이.
+5. 행동 유도: 체험문의·DM·저장 중 하나로. 강매 금지.
+
+[문체]
+- 한 문장 짧게 / 이모지 절제 / 느낌표 남발 금지
+- 금지어: 무조건 / 완치 / 기적 / 100% / 최고 / 효과적입니다 / 도움이 될 수 있습니다
+- "현재 상황에 가장 적합한 방법을 찾아보세요" 금지
+- MZ언어·줄임말 금지 / 블로그 문체 금지
+
+JSON만 출력. 다른 텍스트 절대 금지.
+{"caption":"캡션 본문 (300자 내외, 줄바꿈 포함)","hooks":["훅 대체안1","훅 대체안2","훅 대체안3"],"hashtags":["#태그1","#태그2","#태그3","#태그4","#태그5","#태그6","#태그7","#태그8","#태그9","#태그10"],"cta":["DM유도형","저장유도형","체험문의형"]}`,
+
+    cafe: `너는 카페·베이커리·디저트 업체의 인스타그램 포스팅 생성 엔진이다.
+
+[핵심 원칙]
+1. 짧고 감성적으로 바로 읽힌다.
+2. 첫 줄에서 음식·분위기·감성을 바로 자극한다.
+3. 방문 욕구와 저장·공유 욕구를 동시에 자극.
+
+[글 구조]
+1. 첫 줄 훅: 메뉴·분위기 한 줄 묘사.
+2. 감성 묘사: 맛·향·공간 분위기 짧게.
+3. 핵심 포인트 2~3개: 대표메뉴·접근성·특징.
+4. 방문 유도: 저장·공유·방문 중 하나로. 강매 금지.
+
+[문체]
+- 감성적이되 광고문 금지 / 이모지 1~2개만
+- 금지어: 최고 / 최대 / 무조건 / 100% / 제일맛있는
+
+JSON만 출력.
+{"caption":"캡션 본문 (300자 내외, 줄바꿈 포함)","hooks":["훅 대체안1","훅 대체안2","훅 대체안3"],"hashtags":["#태그1","#태그2","#태그3","#태그4","#태그5","#태그6","#태그7","#태그8","#태그9","#태그10"],"cta":["방문유도형","저장유도형","공유유도형"]}`,
+
+    beauty: `너는 미용실·네일·뷰티 업체의 인스타그램 포스팅 생성 엔진이다.
+
+[핵심 원칙]
+1. 짧고 세련되게 바로 읽힌다.
+2. 첫 줄에서 스타일·색감·시즌감을 자극한다.
+3. 예약·DM 문의로 자연스럽게 이어진다.
+
+[글 구조]
+1. 첫 줄 훅: 스타일·색상·트렌드 한 줄.
+2. 시술 포인트: 주요 특징 2~3개 리스트.
+3. 상담/예약 유도: 자연스럽게. 강매 금지.
+
+[문체]
+- 트렌디하되 광고문 금지 / 이모지 절제
+- 금지어: 최고 / 최대 / 무조건 / 100% / 제일예쁜
+
+JSON만 출력.
+{"caption":"캡션 본문 (300자 내외, 줄바꿈 포함)","hooks":["훅 대체안1","훅 대체안2","훅 대체안3"],"hashtags":["#태그1","#태그2","#태그3","#태그4","#태그5","#태그6","#태그7","#태그8","#태그9","#태그10"],"cta":["예약유도형","DM유도형","저장유도형"]}`
+  };
+
+  // ── 카드뉴스 시스템 프롬프트 ──────────────────────────────────────────
+  const CARD_NEWS_SYSTEM_PROMPT = `너는 인스타그램 카드뉴스 콘텐츠 생성 전문가다.
+주제와 업체 정보를 입력받아 7장 카드뉴스 구성, 롱폼 캡션, 해시태그, ALT 텍스트를 한 번에 생성한다.
+특정 업종에 고정된 문구를 쓰지 않는다. 입력된 주제와 업종에 맞게 자동으로 조정한다.
+
+[슬라이드 조건 — 7장]
+- slide 1: 문제 제기 — 독자가 공감할 핵심 질문이나 상황
+- slide 2~6: 핵심 포인트 하나씩 분해 (구체적이고 실용적으로)
+- slide 7: 결론 또는 부드러운 행동 유도 (업종에 맞게)
+- title: 20자 이내, body: 60자 이내 (2줄 이내로 압축)
+- 쉬운 생활형 표현, 딱딱한 전문용어 금지
+- 광고문·과장 금지
+- 각 슬라이드마다 아래 두 필드를 지정한다.
+  visualHint: office_back_pain | sitting_posture | break_timer | neck_shoulder | core_muscle | gentle_exercise | pilates_help
+  imageQuery: 영어 3~6단어, 사람 또는 동작이 포함된 Unsplash 검색어
+
+[캡션 조건]
+글자수: 1,200~1,800자
+첫 2줄 금지: "안녕하세요" / "오늘은 ~에 대해" / 단순 업체 소개
+본문 흐름: 1)고객 공감 2)원인·기준 설명 3)도움 연결 4)신뢰 안내 5)행동 이유 제시 후 CTA
+CTA: 업종에 맞게 자동 선택 (운동→체험/상담, 카페→방문/저장, 미용→예약/상담)
+
+[해시태그] 10~12개, 업종·지역·주제 조합
+
+[ALT 텍스트] 각 슬라이드별 50자 이내
+
+JSON 외 텍스트 절대 금지.
+{
+  "slides":[
+    {"slide":1,"title":"...","body":"...","visualHint":"office_back_pain","imageQuery":"..."},
+    {"slide":2,"title":"...","body":"...","visualHint":"sitting_posture","imageQuery":"..."},
+    {"slide":3,"title":"...","body":"...","visualHint":"break_timer","imageQuery":"..."},
+    {"slide":4,"title":"...","body":"...","visualHint":"neck_shoulder","imageQuery":"..."},
+    {"slide":5,"title":"...","body":"...","visualHint":"core_muscle","imageQuery":"..."},
+    {"slide":6,"title":"...","body":"...","visualHint":"gentle_exercise","imageQuery":"..."},
+    {"slide":7,"title":"...","body":"...","visualHint":"pilates_help","imageQuery":"..."}
+  ],
+  "caption":"캡션 본문 전체",
+  "hashtags":["#태그1","#태그2"],
+  "alt_texts":["슬1","슬2","슬3","슬4","슬5","슬6","슬7"]
+}`;
+
+  // ── IMAGE MAP ──────────────────────────────────────────
+  const IMAGE_MAP = {
+    office_back_pain: [
+      'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b',
+      'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b',
+      'https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b',
+    ],
+    sitting_posture: [
+      'https://images.unsplash.com/photo-1545205597-3d9d02c29597',
+      'https://images.unsplash.com/photo-1588286840104-8957b019727f',
+      'https://images.unsplash.com/photo-1552196563-55cd4e45efb3',
+    ],
+    break_timer: [
+      'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b',
+      'https://images.unsplash.com/photo-1506126613408-eca07ce68773',
+      'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b',
+    ],
+    neck_shoulder: [
+      'https://images.unsplash.com/photo-1523575708161-ad0fc2a9b951',
+      'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b',
+      'https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b',
+    ],
+    core_muscle: [
+      'https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b',
+      'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b',
+      'https://images.unsplash.com/photo-1545205597-3d9d02c29597',
+    ],
+    gentle_exercise: [
+      'https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b',
+      'https://images.unsplash.com/photo-1552196563-55cd4e45efb3',
+      'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b',
+    ],
+    pilates_help: [
+      'https://images.unsplash.com/photo-1545205597-3d9d02c29597',
+      'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b',
+      'https://images.unsplash.com/photo-1588286840104-8957b019727f',
+    ],
+    default: [
+      'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b',
+      'https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b',
+      'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b',
+    ],
+  };
+  const IMG_PARAMS = '?w=1080&h=1350&fit=crop&auto=format&q=80';
+
   // ── 상태 ──────────────────────────────────────────
-  let currentResult = null;
-  let selectedTitleIdx = -1;
-  let currentHashtagsText = '';
+  let currentResult      = null;
+  let selectedTitleIdx   = -1;
+  let currentHashtagsText= '';
+  let instagramData      = null;
+  let instagramHashtagsText = '';
+  let selectedPhotoDataUrl  = null;
+  let cardNewsData       = null;
+  let cardNewsHashtagsText  = '';
 
   // ── 초기화 ──────────────────────────────────────────
   (function init() {
     loadSettings();
-
-    // 로컬 환경 감지
     if (location.protocol === 'file:' || location.hostname === 'localhost') {
       document.getElementById('local-notice').style.display = 'block';
     }
-
-    // 온보딩: 설정 없으면 패널 강조
     const saved = localStorage.getItem(STORAGE_KEY);
     if (!saved) {
-      const panel = document.getElementById('settings-panel');
-      panel.classList.add('highlight');
+      document.getElementById('settings-panel').classList.add('highlight');
       document.getElementById('onboarding-note').classList.add('show');
     }
   })();
@@ -582,17 +1068,15 @@
     if (!raw) return;
     try {
       const s = JSON.parse(raw);
-      if (s.industry)  document.getElementById('industry').value  = s.industry;
-      if (s.bizName)   document.getElementById('biz-name').value  = s.bizName;
-      if (s.address)   document.getElementById('address').value   = s.address;
-      if (s.phone)     document.getElementById('phone').value     = s.phone;
+      if (s.industry) document.getElementById('industry').value = s.industry;
+      if (s.bizName)  document.getElementById('biz-name').value = s.bizName;
+      if (s.address)  document.getElementById('address').value  = s.address;
+      if (s.phone)    document.getElementById('phone').value    = s.phone;
     } catch (e) {}
   }
 
   function saveSettings() {
-    const settings = getSettings();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-    // 강조 해제
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(getSettings()));
     document.getElementById('settings-panel').classList.remove('highlight');
     document.getElementById('onboarding-note').classList.remove('show');
     showToast('저장됐어요 ✓', 'success');
@@ -608,46 +1092,89 @@
     };
   }
 
-  // ── 글자 수 ──────────────────────────────────────────
-  function updateCharCount() {
-    const len = document.getElementById('topic').value.length;
-    document.getElementById('char-count').textContent = len;
+  // ── 탭 전환 ──────────────────────────────────────────
+  function switchTab(tab) {
+    ['blog', 'instagram', 'card_news'].forEach(t => {
+      document.getElementById(`section-${t}`).style.display = t === tab ? '' : 'none';
+      document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
+    });
   }
 
-  // ── 생성 ──────────────────────────────────────────
+  // ── 글자 수 ──────────────────────────────────────────
+  function updateCharCount() {
+    document.getElementById('char-count').textContent =
+      document.getElementById('topic').value.length;
+  }
+
+  function updateCharCountTab(type) {
+    document.getElementById(`${type}-count`).textContent =
+      document.getElementById(`${type}-input`).value.length;
+  }
+
+  // ── 설정 체크 공통 ──────────────────────────────────────────
+  function checkSettings() {
+    const s = getSettings();
+    if (!s.bizName || !s.address || !s.phone) {
+      showToast('업체 설정을 먼저 완료해주세요 ↑', 'warn');
+      document.getElementById('settings-panel').classList.add('highlight');
+      document.getElementById('onboarding-note').classList.add('show');
+      return null;
+    }
+    return s;
+  }
+
+  // ── API 호출 공통 ──────────────────────────────────────────
+  async function callApi(systemPrompt, userMessage) {
+    let res;
+    try {
+      res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ systemPrompt, userMessage }),
+      });
+    } catch (e) {
+      throw new Error('NETWORK_ERROR');
+    }
+    const data = await res.json();
+    const text = data.content?.[0]?.text ?? '';
+    try {
+      const clean = text.replace(/```json|```/g, '').trim();
+      const match = clean.match(/\{[\s\S]*\}/);
+      return JSON.parse(match ? match[0] : clean);
+    } catch (e) {
+      throw new Error('JSON_PARSE_ERROR');
+    }
+  }
+
+  // ═══════════════════════════
+  // BLOG 생성
+  // ═══════════════════════════
   async function handleGenerate() {
-    const settings = getSettings();
+    const settings = checkSettings();
+    if (!settings) return;
     const topic = document.getElementById('topic').value.trim();
     const errorBox = document.getElementById('error-box');
     const btn = document.getElementById('generate-btn');
 
     errorBox.classList.remove('show');
+    if (!topic) { showToast('주제를 입력해주세요', 'warn'); return; }
 
-    // 업체 설정 체크
-    if (!settings.bizName || !settings.address || !settings.phone) {
-      showToast('업체 설정을 먼저 완료해주세요 ↑', 'warn');
-      document.getElementById('settings-panel').classList.add('highlight');
-      document.getElementById('onboarding-note').classList.add('show');
-      return;
-    }
-    if (!topic) {
-      showToast('주제를 입력해주세요', 'warn');
-      return;
-    }
-
-    // 버튼 비활성화
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span> 생성 중...';
-
-    // 결과 초기화
     document.getElementById('result-panel').classList.remove('show');
     selectedTitleIdx = -1;
     currentResult = null;
 
     try {
-      const data = await generatePost(topic, settings);
+      const userMessage = `업체명: ${settings.bizName}
+주소: ${settings.address}
+전화번호: ${settings.phone}
+주제/키워드: ${topic}
+
+위 업체 정보를 마지막 문단에 자연스럽게 포함해서 포스팅을 작성해줘.`;
+      const data = await callApi(SYSTEM_PROMPTS[settings.industry], userMessage);
       currentResult = data;
-      renderResult(data, topic);
+      renderBlogResult(data, topic);
     } catch (e) {
       let msg = '생성 중 오류가 발생했어요. 다시 시도해주세요.';
       if (e.message === 'JSON_PARSE_ERROR') msg = '응답 파싱 오류. 다시 시도해주세요.';
@@ -660,43 +1187,9 @@
     }
   }
 
-  async function generatePost(topic, settings) {
-    const systemPrompt = SYSTEM_PROMPTS[settings.industry];
-    const userMessage = `업체명: ${settings.bizName}
-주소: ${settings.address}
-전화번호: ${settings.phone}
-주제/키워드: ${topic}
-
-위 업체 정보를 마지막 문단에 자연스럽게 포함해서 포스팅을 작성해줘.`;
-
-    let res;
-    try {
-      res = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ systemPrompt, userMessage }),
-      });
-    } catch (e) {
-      throw new Error('NETWORK_ERROR');
-    }
-
-    const data = await res.json();
-    const text = data.content?.[0]?.text ?? '';
-
-    try {
-      const clean = text.replace(/```json|```/g, '').trim();
-      return JSON.parse(clean);
-    } catch (e) {
-      throw new Error('JSON_PARSE_ERROR');
-    }
-  }
-
-  // ── 결과 렌더 ──────────────────────────────────────────
-  function renderResult(data, topic) {
-    // 1. 검색 의도
+  function renderBlogResult(data, topic) {
     document.getElementById('result-intent').textContent = data.searchIntent || '-';
 
-    // 2. 키워드 태그
     const kwEl = document.getElementById('result-keywords');
     kwEl.innerHTML = '';
     (data.keywords || []).forEach(kw => {
@@ -706,7 +1199,6 @@
       kwEl.appendChild(span);
     });
 
-    // 3. 제목 후보
     const titlesEl = document.getElementById('result-titles');
     titlesEl.innerHTML = '';
     (data.titles || []).forEach((title, i) => {
@@ -717,19 +1209,15 @@
       titlesEl.appendChild(div);
     });
 
-    // 4. 본문
     const body = data.body || '';
     document.getElementById('result-body').value = body;
 
-    // 5. 노출 점수
     const keyword = data.keywords?.[0] ?? '';
     renderScore(data.titles?.[0] ?? '', body, keyword);
 
-    // 6. 금칙어 감지
     const allText = (data.titles || []).join(' ') + ' ' + body;
     renderForbidden(allText);
 
-    // 7. 해시태그
     const hashEl = document.getElementById('result-hashtags');
     hashEl.innerHTML = '';
     currentHashtagsText = (data.hashtags || []).join(' ');
@@ -740,7 +1228,6 @@
       hashEl.appendChild(span);
     });
 
-    // 8. 다음 글 아이디어
     const ideaEl = document.getElementById('result-ideas');
     ideaEl.innerHTML = '';
     (data.nextIdeas || []).forEach(idea => {
@@ -762,13 +1249,10 @@
 
   function selectTitle(idx, titles) {
     selectedTitleIdx = idx;
-    document.querySelectorAll('.title-option').forEach((el, i) => {
-      el.classList.toggle('selected', i === idx);
-    });
-    // 점수 재계산 (선택된 제목 기준)
+    document.querySelectorAll('.title-option').forEach((el, i) =>
+      el.classList.toggle('selected', i === idx));
     if (currentResult) {
-      const keyword = currentResult.keywords?.[0] ?? '';
-      renderScore(titles[idx], currentResult.body || '', keyword);
+      renderScore(titles[idx], currentResult.body || '', currentResult.keywords?.[0] ?? '');
     }
   }
 
@@ -776,102 +1260,456 @@
   function calculateScore(title, body, keyword) {
     const results = [];
     let score = 0;
-
     const check = (label, pass, point) => {
       if (pass) score += point;
       results.push({ label, pass, point });
     };
-
     check('제목에 핵심 키워드 포함', title.includes(keyword), 20);
     check('첫 100자 내 키워드 포함', body.slice(0, 100).includes(keyword), 15);
     check('인사말 없이 시작', !body.slice(0, 30).match(/안녕(하세요|하십니까)|반갑습니다/), 10);
-
     const charCount = body.replace(/\s/g, '').length;
     check(`글자 수 ${charCount}자 (1200자 이상)`, charCount >= 1200, 15);
-
     const mid = body.slice(Math.floor(body.length * 0.3), Math.floor(body.length * 0.7));
     check('본문 중간 키워드 배치', mid.includes(keyword), 10);
-
     const tail = body.slice(Math.floor(body.length * 0.8));
     check('마지막 문단 키워드 배치', tail.includes(keyword), 10);
-
     check('예약·문의 CTA 포함', /전화|예약|문의|방문|상담|오시면|연락/.test(body), 10);
-
-    const escapedKw = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const kwCount = (body.match(new RegExp(escapedKw, 'g')) || []).length;
+    const esc2 = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const kwCount = (body.match(new RegExp(esc2, 'g')) || []).length;
     check(`키워드 반복 ${kwCount}회 (9회 이하)`, kwCount <= 9, 10);
-
     return { score, results };
   }
 
   function renderScore(title, body, keyword) {
     const el = document.getElementById('result-score');
-
-    if (!keyword) {
-      el.innerHTML = '<p class="score-no-kw">키워드를 특정할 수 없어요</p>';
-      return;
-    }
-
+    if (!keyword) { el.innerHTML = '<p class="score-no-kw">키워드를 특정할 수 없어요</p>'; return; }
     const { score, results } = calculateScore(title, body, keyword);
     const cls   = score >= 75 ? 'high' : score >= 50 ? 'mid' : 'low';
     const label = score >= 75 ? '노출 가능성 높음 ✓' : score >= 50 ? '개선 권장' : '노출 어려움';
-
     el.innerHTML = `
       <div class="score-header">
         <span class="score-badge ${cls}">${score}점</span>
         <span class="score-verdict ${cls}">${label}</span>
       </div>
       <div class="score-items">
-        ${results.map(r => `
-          <div class="score-item">
-            <span class="icon">${r.pass ? '✅' : '❌'}</span>
-            <span>${r.label}</span>
-            <span class="pts">+${r.point}점</span>
-          </div>
-        `).join('')}
-      </div>
-    `;
+        ${results.map(r => `<div class="score-item"><span class="icon">${r.pass ? '✅' : '❌'}</span><span>${r.label}</span><span class="pts">+${r.point}점</span></div>`).join('')}
+      </div>`;
   }
 
   // ── 금칙어 ──────────────────────────────────────────
-  function detectForbidden(text) {
-    return FORBIDDEN.filter(w => text.includes(w));
+  function renderForbidden(text) {
+    const found = FORBIDDEN.filter(w => text.includes(w));
+    const el = document.getElementById('result-forbidden');
+    el.innerHTML = found.length === 0
+      ? '<span class="forbidden-ok">금칙어 없음 ✓</span>'
+      : found.map(w => `<span class="forbidden-badge">${w}</span>`).join('');
   }
 
-  function renderForbidden(text) {
-    const found = detectForbidden(text);
-    const el = document.getElementById('result-forbidden');
-    if (found.length === 0) {
-      el.innerHTML = '<span class="forbidden-ok">금칙어 없음 ✓</span>';
-    } else {
-      el.innerHTML = found.map(w =>
-        `<span class="forbidden-badge">${w}</span>`
-      ).join('');
+  // ═══════════════════════════
+  // INSTAGRAM 생성
+  // ═══════════════════════════
+  async function generateTab(type) {
+    const settings = checkSettings();
+    if (!settings) return;
+
+    const topic = document.getElementById(`${type}-input`).value.trim();
+    if (!topic) { showToast('주제를 입력해주세요', 'warn'); return; }
+
+    setTabLoading(type, true);
+    hideTabError(type);
+    hideTabResult(type);
+
+    try {
+      const systemPrompt = type === 'instagram'
+        ? INSTAGRAM_PROMPTS[settings.industry]
+        : CARD_NEWS_SYSTEM_PROMPT;
+
+      const ctaHint = { pilates: '체험/상담 문의', cafe: '방문/저장 유도', beauty: '예약/상담 문의' };
+      const userMessage = `업체명: ${settings.bizName}
+주소: ${settings.address}
+전화번호: ${settings.phone}
+업종: ${settings.industryLabel}
+주제: ${topic}
+
+위 업체 정보를 자연스럽게 활용해 생성해줘.`;
+
+      const data = await callApi(systemPrompt, userMessage);
+
+      if (type === 'instagram') renderInstagram(data, settings);
+      else                      renderCardNews(data, settings);
+
+    } catch (e) {
+      let msg = '생성 중 오류가 발생했어요. 다시 시도해주세요.';
+      if (e.message === 'JSON_PARSE_ERROR') msg = '응답 파싱 오류. 다시 시도해주세요.';
+      if (e.message === 'NETWORK_ERROR')    msg = '네트워크 오류. 연결을 확인해주세요.';
+      showTabError(type, msg);
+    } finally {
+      setTabLoading(type, false);
     }
   }
 
+  function renderInstagram(data, settings) {
+    instagramData = data;
+
+    // 미리보기 업체 정보
+    const initial = (settings.bizName || 'B')[0].toUpperCase();
+    document.getElementById('ig-avatar-letter').textContent   = initial;
+    document.getElementById('ig-biz-name').textContent        = settings.bizName;
+    document.getElementById('ig-biz-address').textContent     = settings.address;
+    document.getElementById('ig-caption-username').textContent= settings.bizName;
+
+    // 캡션
+    document.getElementById('instagram-caption').textContent = data.caption;
+
+    // 훅 대체안
+    const hooksEl = document.getElementById('instagram-hooks');
+    hooksEl.innerHTML = '';
+    (data.hooks || []).forEach((hook, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'title-item';
+      btn.innerHTML = `<div class="title-num">${i + 1}</div><div class="title-text">${esc(hook)}</div>`;
+      btn.onclick = () => {
+        const capEl = document.getElementById('instagram-caption');
+        const lines = capEl.textContent.split('\n');
+        lines[0] = hook;
+        capEl.textContent = lines.join('\n');
+        instagramData = { ...instagramData, caption: lines.join('\n') };
+        document.getElementById('ig-preview-caption').textContent = lines.join('\n');
+        hooksEl.querySelectorAll('.title-item').forEach((el, j) =>
+          el.classList.toggle('selected', j === i));
+      };
+      hooksEl.appendChild(btn);
+    });
+
+    // 해시태그
+    instagramHashtagsText = (data.hashtags || []).join(' ');
+    renderHashtagPills('instagram-hashtags', data.hashtags || []);
+
+    // CTA
+    const ctaEl = document.getElementById('instagram-cta');
+    ctaEl.innerHTML = '';
+    (data.cta || []).forEach(c => {
+      const btn = document.createElement('button');
+      btn.className = 'cta-item';
+      btn.innerHTML = `<span>${esc(c)}</span><span class="cta-item-icon">복사</span>`;
+      btn.onclick = () => copyText(c, btn);
+      ctaEl.appendChild(btn);
+    });
+
+    // 미리보기 채우기
+    document.getElementById('ig-preview-caption').textContent = data.caption;
+    document.getElementById('ig-preview-hashtags').textContent = (data.hashtags || []).join(' ');
+    updatePreviewImage();
+
+    showTabResult('instagram');
+  }
+
+  // 사진 업로드
+  function handlePhotoSelect(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      selectedPhotoDataUrl = e.target.result;
+      const zone = document.getElementById('photo-upload-zone');
+      document.getElementById('photo-preview-img').src = selectedPhotoDataUrl;
+      document.getElementById('photo-preview-img').style.display = 'block';
+      document.getElementById('photo-upload-label').style.display = 'none';
+      document.getElementById('photo-change-btn').style.display = 'block';
+      zone.classList.add('has-photo');
+      updatePreviewImage();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function handlePhotoDrop(e) {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) handlePhotoSelect(file);
+  }
+
+  function updatePreviewImage() {
+    const previewImg = document.getElementById('ig-preview-image');
+    const placeholder = document.getElementById('ig-img-placeholder');
+    if (selectedPhotoDataUrl) {
+      previewImg.src = selectedPhotoDataUrl;
+      previewImg.style.display = 'block';
+      placeholder.style.display = 'none';
+    } else {
+      previewImg.style.display = 'none';
+      placeholder.style.display = 'flex';
+    }
+  }
+
+  function copyAllInstagram() {
+    if (!instagramData) return;
+    const text = `${instagramData.caption}\n\n${instagramHashtagsText}`;
+    copyText(text, document.getElementById('instagram-copy-all'));
+  }
+
+  // ═══════════════════════════
+  // CARD NEWS 생성
+  // ═══════════════════════════
+  function resolveImage(slide, index) {
+    const urls = IMAGE_MAP[slide.visualHint] || IMAGE_MAP.default;
+    return urls[index % urls.length] + IMG_PARAMS;
+  }
+
+  function replaceCardImage(index, file) {
+    if (!file || !cardNewsData) return;
+    const slide = cardNewsData.slides[index];
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      slide.customImageData = e.target.result;
+      const visual = document.getElementById('card-visual-' + index);
+      if (visual) visual.style.backgroundImage = `url('${e.target.result}')`;
+      const wrap = visual && visual.closest('.card-preview-wrap');
+      if (wrap) {
+        const old = wrap.querySelector('.card-custom-badge');
+        if (old) old.remove();
+        const badge = document.createElement('div');
+        badge.className = 'card-custom-badge';
+        badge.textContent = '✓ 교체됨';
+        wrap.appendChild(badge);
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function renderCardNews(data, settings) {
+    cardNewsData = data;
+
+    const grid = document.getElementById('card-grid');
+    grid.innerHTML = '';
+    (data.slides || []).forEach((slide, i) => {
+      slide.imageUrl = resolveImage(slide, i);
+      const wrap = document.createElement('div');
+      wrap.className = 'card-preview-wrap';
+      wrap.innerHTML = `
+        <div class="card-preview">
+          <div class="card-visual" id="card-visual-${i}" style="background-image: url('${slide.imageUrl}')">
+            <div class="card-visual-overlay"></div>
+            <div class="card-visual-meta">
+              <span class="card-visual-num">${slide.slide} / 7</span>
+              <span class="card-visual-brand">${esc(settings.bizName)}</span>
+            </div>
+            <input type="file" accept="image/*" id="card-img-input-${i}" style="display:none"
+              onchange="replaceCardImage(${i}, this.files[0])">
+            <button class="card-img-replace-btn"
+              onclick="document.getElementById('card-img-input-${i}').click()">📷 이미지 교체</button>
+          </div>
+          <div class="card-text-area">
+            <div class="card-text-title">${esc(slide.title)}</div>
+            <div class="card-text-body">${esc(slide.body)}</div>
+            <div class="card-text-location">📍 ${esc(settings.address)}</div>
+          </div>
+        </div>
+        <button class="card-dl-btn" onclick="downloadCard(${i})">저장</button>
+      `;
+      grid.appendChild(wrap);
+    });
+
+    document.getElementById('card-caption').textContent = data.caption || '';
+    cardNewsHashtagsText = (data.hashtags || []).join(' ');
+    renderHashtagPills('card-hashtags', data.hashtags || []);
+
+    const altEl = document.getElementById('card-alt-texts');
+    altEl.innerHTML = '';
+    (data.alt_texts || []).forEach((alt, i) => {
+      altEl.innerHTML += `<div class="alt-text-item"><span class="alt-num">${i + 1}</span><span>${esc(alt)}</span></div>`;
+    });
+
+    showTabResult('card_news');
+  }
+
+  // ── Canvas 카드 렌더링 ──────────────────────────────────────────
+  async function drawCardToCanvas(slide, index) {
+    const W = 1080, H = 1350;
+    const VH = Math.round(H * 0.62);
+    const canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    const s = getSettings();
+
+    const _loadImg = (src) => new Promise((resolve) => {
+      const im = new Image();
+      im.crossOrigin = 'anonymous';
+      im.onload  = () => resolve(im.naturalWidth > 0 ? im : null);
+      im.onerror = () => resolve(null);
+      im.src = src;
+    });
+
+    const primaryUrl = slide.customImageData || slide.imageUrl || resolveImage(slide, index);
+    let drawImg = await _loadImg(primaryUrl);
+    if (!drawImg) drawImg = await _loadImg(IMAGE_MAP.default[0] + IMG_PARAMS);
+
+    if (drawImg) {
+      const srcRatio = drawImg.naturalWidth / drawImg.naturalHeight;
+      const dstRatio = W / VH;
+      let sx = 0, sy = 0, sw = drawImg.naturalWidth, sh = drawImg.naturalHeight;
+      if (srcRatio > dstRatio) { sw = drawImg.naturalHeight * dstRatio; sx = (drawImg.naturalWidth - sw) / 2; }
+      else                     { sh = drawImg.naturalWidth / dstRatio;  sy = (drawImg.naturalHeight - sh) / 2; }
+      ctx.drawImage(drawImg, sx, sy, sw, sh, 0, 0, W, VH);
+    } else {
+      const g = ctx.createLinearGradient(0, 0, 0, VH);
+      g.addColorStop(0, '#2E6B4F'); g.addColorStop(1, '#52B788');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, VH);
+    }
+
+    const overlay = ctx.createLinearGradient(0, 0, 0, VH);
+    overlay.addColorStop(0, 'rgba(0,0,0,0.42)');
+    overlay.addColorStop(0.5, 'rgba(0,0,0,0.1)');
+    overlay.addColorStop(1, 'rgba(0,0,0,0.28)');
+    ctx.fillStyle = overlay;
+    ctx.fillRect(0, 0, W, VH);
+
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    ctx.font = 'bold 32px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(`${slide.slide} / 7`, 44, 58);
+
+    ctx.font = 'bold 28px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(s.bizName || '업체명', W - 44, 58);
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, VH, W, H - VH);
+
+    ctx.fillStyle = '#0F1117';
+    ctx.font = 'bold 72px Apple SD Gothic Neo, sans-serif';
+    ctx.textAlign = 'center';
+    wrapCanvasText(ctx, slide.title, W / 2, VH + 105, W - 100, 88, 2);
+
+    ctx.fillStyle = '#4C4C4C';
+    ctx.font = '46px Apple SD Gothic Neo, sans-serif';
+    wrapCanvasText(ctx, slide.body, W / 2, VH + 315, W - 120, 62, 2);
+
+    ctx.fillStyle = '#2E6B4F';
+    ctx.font = 'bold 28px sans-serif';
+    ctx.fillText(s.address || '', W / 2, H - 36);
+
+    return canvas;
+  }
+
+  function wrapCanvasText(ctx, text, x, y, maxW, lineH, maxLines = 99) {
+    if (!text) return;
+    let line = '', curY = y, lineCount = 0;
+    for (let c of text.split('')) {
+      const test = line + c;
+      if (ctx.measureText(test).width > maxW && line) {
+        ctx.fillText(line, x, curY);
+        line = c; curY += lineH; lineCount++;
+        if (lineCount >= maxLines) { ctx.fillText(line, x, curY); return; }
+      } else { line = test; }
+    }
+    if (line) ctx.fillText(line, x, curY);
+  }
+
+  async function downloadCard(index) {
+    if (!cardNewsData) return;
+    const slide = cardNewsData.slides[index];
+    const canvas = await drawCardToCanvas(slide, index);
+    const link = document.createElement('a');
+    link.download = `카드뉴스_${slide.slide}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }
+
+  async function downloadAllCards() {
+    if (!cardNewsData) return;
+    for (let i = 0; i < cardNewsData.slides.length; i++) {
+      await downloadCard(i);
+      await new Promise(r => setTimeout(r, 400));
+    }
+    showToast('✓ 7장 저장 완료', 'success');
+  }
+
+  function cardNewsCaptionFull() {
+    if (!cardNewsData) return '';
+    return `${cardNewsData.caption}\n\n${cardNewsHashtagsText}`;
+  }
+
+  function cardNewsAltAll() {
+    if (!cardNewsData) return '';
+    return (cardNewsData.alt_texts || []).map((a, i) => `[${i + 1}] ${a}`).join('\n');
+  }
+
+  // ── UI 헬퍼 ──────────────────────────────────────────
+  function setTabLoading(type, on) {
+    const btn = document.getElementById(`${type}-btn`);
+    btn.disabled = on;
+    const labels = { instagram: '인스타 캡션 생성', card_news: '카드뉴스 생성' };
+    btn.innerHTML = on
+      ? '<div class="spinner"></div> 생성 중...'
+      : labels[type] || '생성';
+  }
+
+  function showTabError(type, msg) {
+    document.getElementById(`${type}-error-msg`).textContent = msg;
+    document.getElementById(`${type}-error`).classList.add('visible');
+  }
+  function hideTabError(type) {
+    document.getElementById(`${type}-error`).classList.remove('visible');
+  }
+  function showTabResult(type) {
+    const el = document.getElementById(`${type}-result`);
+    el.classList.add('visible');
+    setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+  }
+  function hideTabResult(type) {
+    document.getElementById(`${type}-result`).classList.remove('visible');
+  }
+
+  function renderHashtagPills(id, tags) {
+    document.getElementById(id).innerHTML =
+      tags.map(t => `<span class="hashtag-pill">${esc(t)}</span>`).join('');
+  }
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
   // ── 복사 ──────────────────────────────────────────
-  function copyText(id) {
+  function copyEl(id, btn) {
     const el = document.getElementById(id);
-    const text = el.value || el.textContent;
-    navigator.clipboard.writeText(text).then(() => showToast('복사됐어요 ✓', 'success'));
+    copyText(el.value || el.textContent, btn);
+  }
+
+  function copyText(text, btn) {
+    const done = () => {
+      showToast('복사됐어요 ✓', 'success');
+      if (btn) {
+        btn.classList.add('copied');
+        setTimeout(() => btn.classList.remove('copied'), 2000);
+      }
+    };
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(fbCopy);
+    } else { fbCopy(); }
+    function fbCopy() {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      Object.assign(ta.style, { position: 'fixed', opacity: '0', top: '0', left: '0' });
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); done(); } catch (e) {}
+      document.body.removeChild(ta);
+    }
   }
 
   function copyHashtags() {
-    navigator.clipboard.writeText(currentHashtagsText).then(() => showToast('해시태그 복사됐어요 ✓', 'success'));
+    copyText(currentHashtagsText);
   }
 
   function copyAll() {
     if (!currentResult) return;
-    if (selectedTitleIdx < 0) {
-      showToast('제목을 먼저 선택해주세요', 'warn');
-      return;
-    }
+    if (selectedTitleIdx < 0) { showToast('제목을 먼저 선택해주세요', 'warn'); return; }
     const title = currentResult.titles[selectedTitleIdx];
     const body  = currentResult.body || '';
-    const tags  = currentHashtagsText;
-    const full  = `${title}\n\n${body}\n\n${tags}`;
-    navigator.clipboard.writeText(full).then(() => showToast('전체 복사됐어요 ✓', 'success'));
+    const full  = `${title}\n\n${body}\n\n${currentHashtagsText}`;
+    copyText(full);
   }
 
   // ── 토스트 ──────────────────────────────────────────
