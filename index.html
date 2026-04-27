@@ -846,7 +846,8 @@
 8. 본문은 반드시 공백 제외 1500자 이상 작성할 것.
    단락을 충분히 나눠서 각 단락을 3~5문장으로 풍성하게 작성.
    글자 수가 부족하면 관련 정보를 더 자세히 설명할 것.
-9. 마지막 문단: 업체명+주소+전화번호+예약/문의 CTA 포함
+9. 마지막 문단: 업체명+주소+전화번호+예약/문의 CTA 포함.
+   '추천합니다' '권장합니다' 사용 금지. 대신 '방문해보세요' '문의해보세요' '상담받아보세요' 형태로.
 10. 효과 보장 표현 금지, 대신 "~에 도움이 돼요" 형태
 
 [절대 금지 — 위반 시 사용자에게 직접 피해]
@@ -876,7 +877,8 @@
 8. 본문은 반드시 공백 제외 1500자 이상 작성할 것.
    단락을 충분히 나눠서 각 단락을 3~5문장으로 풍성하게 작성.
    글자 수가 부족하면 관련 정보를 더 자세히 설명할 것.
-9. 마지막 문단: 업체명+주소+전화번호+방문/예약 CTA 포함
+9. 마지막 문단: 업체명+주소+전화번호+방문/예약 CTA 포함.
+   '추천합니다' '권장합니다' 사용 금지. 대신 '방문해보세요' '들러보세요' '확인해보세요' 형태로.
 10. 본문에 인테리어 분위기, 대표 메뉴, 접근성 묘사 포함
 
 [절대 금지 — 위반 시 사용자에게 직접 피해]
@@ -906,7 +908,8 @@
 8. 본문은 반드시 공백 제외 1500자 이상 작성할 것.
    단락을 충분히 나눠서 각 단락을 3~5문장으로 풍성하게 작성.
    글자 수가 부족하면 관련 정보를 더 자세히 설명할 것.
-9. 마지막 문단: 업체명+주소+전화번호+예약/문의 CTA 포함
+9. 마지막 문단: 업체명+주소+전화번호+예약/문의 CTA 포함.
+   '추천합니다' '권장합니다' 사용 금지. 대신 '예약해보세요' '문의해보세요' '상담받아보세요' 형태로.
 10. 본문에 시술 과정, 결과 묘사, 분위기, 가격대 포함
 
 [절대 금지 — 위반 시 사용자에게 직접 피해]
@@ -1245,8 +1248,9 @@ JSON 외 텍스트 절대 금지.
     const body = data.body || '';
     document.getElementById('result-body').value = body;
 
-    const keyword = pickKeyword(data.keywords);
-    renderScore(data.titles?.[0] ?? '', body, keyword);
+    const firstTitle = data.titles?.[0] ?? '';
+    const keyword = pickKeyword(data.keywords, firstTitle);
+    renderScore(firstTitle, body, keyword);
 
     const allText = (data.titles || []).join(' ') + ' ' + body;
     renderForbidden(allText);
@@ -1285,13 +1289,22 @@ JSON 외 텍스트 절대 금지.
     document.querySelectorAll('.title-option').forEach((el, i) =>
       el.classList.toggle('selected', i === idx));
     if (currentResult) {
-      renderScore(titles[idx], currentResult.body || '', pickKeyword(currentResult.keywords));
+      renderScore(titles[idx], currentResult.body || '', pickKeyword(currentResult.keywords, titles[idx]));
     }
   }
 
-  // ── 키워드 선택: 가장 짧은 단어 (긴 문자열 매칭 방지) ──────────────
-  function pickKeyword(keywords) {
+  // ── 키워드 선택 ──────────────────────────────────────────
+  // 우선순위: ① 제목에 포함된 키워드 중 가장 긴 것
+  //           ② 공백 없는 단어 중 가장 짧은 것 (2자 이상)
+  //           ③ 전체 배열에서 가장 짧은 것
+  function pickKeyword(keywords, title = '') {
     if (!keywords || !keywords.length) return '';
+    if (title) {
+      const inTitle = keywords.filter(k => k && title.includes(k));
+      if (inTitle.length) return inTitle.sort((a, b) => b.length - a.length)[0];
+    }
+    const singles = keywords.filter(k => k && !k.includes(' ') && k.length >= 2);
+    if (singles.length) return singles.sort((a, b) => a.length - b.length)[0];
     return [...keywords].sort((a, b) => a.length - b.length)[0];
   }
 
