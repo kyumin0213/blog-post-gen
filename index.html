@@ -1184,6 +1184,36 @@ JSON 외 텍스트 절대 금지.
     return s;
   }
 
+  // ── JSON 문자열 내부 특수문자 복원 ──────────────────────────────────────────
+  // JSON.parse가 실패할 때 body 같은 긴 한국어 문자열 안에 리터럴 줄바꿈·탭이
+  // 이스케이프 없이 들어가면 파싱이 깨진다. 문자 단위로 순회해서 문자열 내부만 고친다.
+  function repairJsonStrings(str) {
+    let result = '';
+    let inString = false;
+    let escaped = false;
+    for (let i = 0; i < str.length; i++) {
+      const ch = str[i];
+      if (escaped) {
+        result += ch;
+        escaped = false;
+      } else if (ch === '\\') {
+        result += ch;
+        escaped = true;
+      } else if (ch === '"') {
+        result += ch;
+        inString = !inString;
+      } else if (inString) {
+        if      (ch === '\n') result += '\\n';
+        else if (ch === '\r') result += '\\r';
+        else if (ch === '\t') result += '\\t';
+        else result += ch;
+      } else {
+        result += ch;
+      }
+    }
+    return result;
+  }
+
   // ── API 호출 공통 ──────────────────────────────────────────
   async function callApi(systemPrompt, userMessage) {
     let res;
@@ -1198,26 +1228,19 @@ JSON 외 텍스트 절대 금지.
     }
     const data = await res.json();
     const text = data.content?.[0]?.text ?? '';
-    try {
-      // 1차: 코드블록 제거 후 파싱
-      const clean = text.replace(/```json\s*|```/g, '').trim();
-      const match = clean.match(/\{[\s\S]*\}/);
-      const candidate = match ? match[0] : clean;
-      try {
-        return JSON.parse(candidate);
-      } catch (_) {
-        // 2차: 제어문자 정리 후 재시도
-        const sanitized = candidate
-          .replace(/[\u0000-\u001F\u007F]/g, m => m === '\n' ? '\\n' : m === '\t' ? '\\t' : '')
-          .replace(/(?<!\\)"/g, (m, offset, str) => {
-            // JSON 구조 밖의 따옴표는 건드리지 않음 — 단순히 재시도
-            return m;
-          });
-        return JSON.parse(sanitized);
-      }
-    } catch (e) {
-      throw new Error('JSON_PARSE_ERROR');
-    }
+
+    // 코드블록 제거 + JSON 객체 추출
+    const clean = text.replace(/```json\s*|```/g, '').trim();
+    const match = clean.match(/\{[\s\S]*\}/);
+    const candidate = match ? match[0] : clean;
+
+    // 1차: 그대로 파싱
+    try { return JSON.parse(candidate); } catch (_) {}
+
+    // 2차: JSON 문자열 내부 특수문자 복원 후 재시도
+    try { return JSON.parse(repairJsonStrings(candidate)); } catch (_) {}
+
+    throw new Error('JSON_PARSE_ERROR');
   }
 
   // ═══════════════════════════
