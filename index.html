@@ -681,18 +681,12 @@
     }
 
     const data = await res.json();
-
-    // [DEBUG] 응답 전체 확인
-    console.log('[generatePost] raw response:', JSON.stringify(data, null, 2));
-
     const text = data.content?.[0]?.text ?? '';
 
     try {
       const clean = text.replace(/```json|```/g, '').trim();
       return JSON.parse(clean);
     } catch (e) {
-      // [DEBUG] 파싱 실패 시 raw text alert
-      alert('[DEBUG] JSON 파싱 실패\n\n' + (text || JSON.stringify(data)));
       throw new Error('JSON_PARSE_ERROR');
     }
   }
