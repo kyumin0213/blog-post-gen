@@ -1828,7 +1828,7 @@ CTA: 업종에 맞게 자동 선택 (운동→체험/상담, 카페→방문/저
           <div class="card-text-area">
             <div class="card-text-title">${esc(slide.title)}</div>
             <div class="card-text-body">${esc(slide.body)}</div>
-            <div class="card-text-location">📍 ${esc(settings.address)}</div>
+            ${i === 6 ? `<div class="card-text-location">📍 ${esc(settings.address)}</div>` : ''}
           </div>
         </div>
         <button class="card-dl-btn" onclick="downloadCard(${i})">저장</button>
@@ -1911,9 +1911,12 @@ CTA: 업종에 맞게 자동 선택 (운동→체험/상담, 카페→방문/저
     ctx.font = '46px Apple SD Gothic Neo, sans-serif';
     wrapCanvasText(ctx, slide.body, W / 2, VH + 315, W - 120, 62, 2);
 
-    ctx.fillStyle = '#2E6B4F';
-    ctx.font = 'bold 28px sans-serif';
-    ctx.fillText(s.address || '', W / 2, H - 36);
+    // 마지막 카드(7장)에만 주소 표시
+    if (index === 6) {
+      ctx.fillStyle = '#2E6B4F';
+      ctx.font = 'bold 28px sans-serif';
+      ctx.fillText(s.address || '', W / 2, H - 36);
+    }
 
     return canvas;
   }
