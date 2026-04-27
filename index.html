@@ -837,7 +837,7 @@
   const SYSTEM_PROMPTS = {
     pilates: `너는 네이버 블로그 에디터다. 필라테스·헬스·요가 업종 전문.
 독자가 "나 얘기네" 하고 저장하고 싶어지는 글을 쓴다. SEO도 지킨다.
-JSON만 출력. 코드블록 없이 순수 JSON만.
+아래 [출력 형식]의 구분자를 정확히 지켜서 출력한다. 다른 텍스트 없이.
 
 [글의 철학]
 이 글을 읽는 사람은 광고를 보러 온 게 아니다. "나 같은 사람도 갈 수 있는 곳인지" 판단하러 온 거다.
@@ -874,13 +874,17 @@ JSON만 출력. 코드블록 없이 순수 JSON만.
 6. 마지막 단락: 업체명+주소+전화번호+CTA.
 7. 입력된 정보만 사용. 확인되지 않은 사실·리뷰 수·순위 절대 지어내지 말 것.
 
-[출력 형식 — 순수 JSON만]
+[출력 형식 — 구분자 방식으로 정확히]
 keywords[0]이 핵심 키워드. 해시태그 반드시 #포함, 정확히 10개.
-{"searchIntent":"","keywords":[],"titles":["","",""],"body":"","hashtags":["#태그1","#태그2","#태그3","#태그4","#태그5","#태그6","#태그7","#태그8","#태그9","#태그10"],"nextIdeas":["","",""]}`,
+===META===
+{"searchIntent":"","keywords":[],"titles":["","",""],"hashtags":["#태그1","#태그2","#태그3","#태그4","#태그5","#태그6","#태그7","#태그8","#태그9","#태그10"],"nextIdeas":["",""]}
+===BODY===
+본문 텍스트 (줄바꿈 자유, JSON 아님)
+===END===`,
 
     cafe: `너는 네이버 블로그 에디터다. 카페·베이커리·디저트 업종 전문.
 독자가 "나 얘기네" 하고 저장하고 싶어지는 글을 쓴다. SEO도 지킨다.
-JSON만 출력. 코드블록 없이 순수 JSON만.
+아래 [출력 형식]의 구분자를 정확히 지켜서 출력한다. 다른 텍스트 없이.
 
 [글의 철학]
 이 글을 읽는 사람은 광고를 보러 온 게 아니다. "이 카페 실제로 갈 만한지" 판단하러 온 거다.
@@ -917,13 +921,17 @@ JSON만 출력. 코드블록 없이 순수 JSON만.
 6. 마지막 단락: 업체명+주소+전화번호+CTA.
 7. 입력된 정보만 사용. 확인되지 않은 사실·리뷰 수·순위 절대 지어내지 말 것.
 
-[출력 형식 — 순수 JSON만]
+[출력 형식 — 구분자 방식으로 정확히]
 keywords[0]이 핵심 키워드. 해시태그 반드시 #포함, 정확히 10개.
-{"searchIntent":"","keywords":[],"titles":["","",""],"body":"","hashtags":["#태그1","#태그2","#태그3","#태그4","#태그5","#태그6","#태그7","#태그8","#태그9","#태그10"],"nextIdeas":["","",""]}`,
+===META===
+{"searchIntent":"","keywords":[],"titles":["","",""],"hashtags":["#태그1","#태그2","#태그3","#태그4","#태그5","#태그6","#태그7","#태그8","#태그9","#태그10"],"nextIdeas":["",""]}
+===BODY===
+본문 텍스트 (줄바꿈 자유, JSON 아님)
+===END===`,
 
     beauty: `너는 네이버 블로그 에디터다. 미용실·네일·뷰티 업종 전문.
 독자가 "나 얘기네" 하고 저장하고 싶어지는 글을 쓴다. SEO도 지킨다.
-JSON만 출력. 코드블록 없이 순수 JSON만.
+아래 [출력 형식]의 구분자를 정확히 지켜서 출력한다. 다른 텍스트 없이.
 
 [글의 철학]
 이 글을 읽는 사람은 광고를 보러 온 게 아니다. "이 곳 믿고 맡겨도 될지" 판단하러 온 거다.
@@ -960,9 +968,13 @@ JSON만 출력. 코드블록 없이 순수 JSON만.
 6. 마지막 단락: 업체명+주소+전화번호+CTA.
 7. 입력된 정보만 사용. 확인되지 않은 사실·리뷰 수·순위 절대 지어내지 말 것.
 
-[출력 형식 — 순수 JSON만]
+[출력 형식 — 구분자 방식으로 정확히]
 keywords[0]이 핵심 키워드. 해시태그 반드시 #포함, 정확히 10개.
-{"searchIntent":"","keywords":[],"titles":["","",""],"body":"","hashtags":["#태그1","#태그2","#태그3","#태그4","#태그5","#태그6","#태그7","#태그8","#태그9","#태그10"],"nextIdeas":["","",""]}`
+===META===
+{"searchIntent":"","keywords":[],"titles":["","",""],"hashtags":["#태그1","#태그2","#태그3","#태그4","#태그5","#태그6","#태그7","#태그8","#태그9","#태그10"],"nextIdeas":["",""]}
+===BODY===
+본문 텍스트 (줄바꿈 자유, JSON 아님)
+===END===`
   };
 
   // ── 인스타그램 시스템 프롬프트 ──────────────────────────────────────────
@@ -1232,6 +1244,33 @@ JSON 외 텍스트 절대 금지.
     return result;
   }
 
+  // ── 블로그 응답 파싱 (구분자 방식 → JSON 폴백) ────────────────────────────
+  // body를 JSON 밖으로 꺼냈기 때문에 한국어 따옴표·줄바꿈에 의한 파싱 오류가 없다.
+  function parseBlogResponse(text) {
+    const metaMatch = text.match(/===META===\s*([\s\S]*?)\s*===BODY===/);
+    const bodyMatch = text.match(/===BODY===\s*([\s\S]*?)\s*===END===/);
+
+    if (metaMatch && bodyMatch) {
+      const rawMeta = metaMatch[1].trim();
+      const body    = bodyMatch[1].trim();
+      // META JSON 파싱 (body 없어서 짧고 안전)
+      let meta;
+      try { meta = JSON.parse(rawMeta); }
+      catch (_) { meta = JSON.parse(repairJsonStrings(rawMeta)); }
+      meta.body = body;
+      return meta;
+    }
+
+    // 구분자 형식이 아닐 때 기존 JSON 폴백
+    const clean = text.replace(/```json\s*|```/g, '').trim();
+    const match = clean.match(/\{[\s\S]*\}/);
+    const candidate = match ? match[0] : clean;
+    try { return JSON.parse(candidate); } catch (_) {}
+    try { return JSON.parse(repairJsonStrings(candidate)); } catch (_) {}
+
+    throw new Error('JSON_PARSE_ERROR');
+  }
+
   // ── API 호출 공통 ──────────────────────────────────────────
   async function callApi(systemPrompt, userMessage) {
     let res;
@@ -1252,13 +1291,27 @@ JSON 외 텍스트 절대 금지.
     const match = clean.match(/\{[\s\S]*\}/);
     const candidate = match ? match[0] : clean;
 
-    // 1차: 그대로 파싱
     try { return JSON.parse(candidate); } catch (_) {}
-
-    // 2차: JSON 문자열 내부 특수문자 복원 후 재시도
     try { return JSON.parse(repairJsonStrings(candidate)); } catch (_) {}
 
     throw new Error('JSON_PARSE_ERROR');
+  }
+
+  // ── 블로그 전용 API 호출 ──────────────────────────────────────────
+  async function callBlogApi(systemPrompt, userMessage) {
+    let res;
+    try {
+      res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ systemPrompt, userMessage }),
+      });
+    } catch (e) {
+      throw new Error('NETWORK_ERROR');
+    }
+    const data = await res.json();
+    const text = data.content?.[0]?.text ?? '';
+    return parseBlogResponse(text);
   }
 
   // ═══════════════════════════
@@ -1291,7 +1344,7 @@ JSON 외 텍스트 절대 금지.
 위 업체 정보를 마지막 문단에 자연스럽게 포함해서 포스팅을 작성해줘.
 본문은 공백 제외 반드시 ${charRange}자 범위로 작성할 것 (최소 ${charMin}자 이상). 단락을 6~8개로 넉넉하게 나눠서 각 단락이 충분히 풍성하게 써줘.
 핵심 키워드를 첫 단락·본문 중간·마지막 단락에 각 1회씩 반드시 포함할 것 (총 최소 3회).`;
-      const data = await callApi(SYSTEM_PROMPTS[settings.industry], userMessage);
+      const data = await callBlogApi(SYSTEM_PROMPTS[settings.industry], userMessage);
       currentResult = data;
       renderBlogResult(data, topic);
     } catch (e) {
