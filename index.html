@@ -1178,7 +1178,8 @@ JSON 외 텍스트 절대 금지.
 주제/키워드: ${topic}
 
 위 업체 정보를 마지막 문단에 자연스럽게 포함해서 포스팅을 작성해줘.
-본문은 공백 제외 반드시 1000자 이상 작성할 것. 단락을 넉넉하게 나눠서 풍성하게 써줘.`;
+본문은 공백 제외 반드시 1000자 이상 작성할 것. 단락을 넉넉하게 나눠서 풍성하게 써줘.
+마지막 문단 첫 문장에 핵심 키워드를 반드시 한 번 포함할 것.`;
       const data = await callApi(SYSTEM_PROMPTS[settings.industry], userMessage);
       currentResult = data;
       renderBlogResult(data, topic);
