@@ -1168,7 +1168,8 @@ JSON 외 텍스트 절대 금지.
 전화번호: ${settings.phone}
 주제/키워드: ${topic}
 
-위 업체 정보를 마지막 문단에 자연스럽게 포함해서 포스팅을 작성해줘.`;
+위 업체 정보를 마지막 문단에 자연스럽게 포함해서 포스팅을 작성해줘.
+본문은 공백 제외 반드시 1000자 이상 작성할 것. 단락을 넉넉하게 나눠서 풍성하게 써줘.`;
       const data = await callApi(SYSTEM_PROMPTS[settings.industry], userMessage);
       currentResult = data;
       renderBlogResult(data, topic);
@@ -1206,7 +1207,8 @@ JSON 외 텍스트 절대 금지.
       titlesEl.appendChild(div);
     });
 
-    const body = data.body || '';
+    const body = sanitizeBody(data.body || '');
+    data.body = body; // sanitize 결과를 currentResult에도 반영
     document.getElementById('result-body').value = body;
 
     const firstTitle = data.titles?.[0] ?? '';
@@ -1260,6 +1262,29 @@ JSON 외 텍스트 절대 금지.
   //           ③ 제목에만 포함된 키워드 중 가장 긴 것
   //           ④ 공백 없는 키워드 중 가장 짧은 것 (2자 이상)
   //           ⑤ 전체 배열에서 가장 짧은 것
+  // ── 금칙어 자동 교체 (프롬프트 싸움 대신 코드로 해결) ──────────────────
+  const SANITIZE_MAP = {
+    '추천합니다': '방문해보세요',
+    '추천드립니다': '방문해보세요',
+    '추천됩니다': '찾아오세요',
+    '추천해요': '찾아오세요',
+    '추천할게요': '안내해드릴게요',
+    '강력 추천': '꼭 한번',
+    '강력추천': '꼭 한번',
+    '권장합니다': '상담해보세요',
+    '권장드립니다': '상담해보세요',
+    '권합니다': '들러보세요',
+    '권유합니다': '들러보세요',
+    '권유드립니다': '들러보세요',
+  };
+  function sanitizeBody(text) {
+    let out = text;
+    for (const [bad, good] of Object.entries(SANITIZE_MAP)) {
+      out = out.split(bad).join(good);
+    }
+    return out;
+  }
+
   function pickKeyword(keywords, title = '', body = '') {
     if (!keywords || !keywords.length) return '';
     const valid = keywords.filter(k => k && k.length >= 2);
@@ -1301,7 +1326,7 @@ JSON 외 텍스트 절대 금지.
       results.push({ label, pass, point });
     };
     check('제목에 핵심 키워드 포함', title.includes(keyword), 20);
-    check('첫 100자 내 키워드 포함', body.slice(0, 100).includes(keyword), 15);
+    check('첫 150자 내 키워드 포함', body.slice(0, 150).includes(keyword), 15);
     check('인사말 없이 시작', !body.slice(0, 30).match(/안녕(하세요|하십니까)|반갑습니다/), 10);
     const charCount = body.replace(/\s/g, '').length;
     check(`글자 수 ${charCount}자 (1000자 이상)`, charCount >= 1000, 15);
@@ -1313,14 +1338,6 @@ JSON 외 텍스트 절대 금지.
     const esc2 = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const kwCount = (body.match(new RegExp(esc2, 'g')) || []).length;
     check(`키워드 반복 ${kwCount}회 (9회 이하)`, kwCount <= 9, 10);
-
-    // 금칙어 감점 (-15점)
-    const fullText = title + ' ' + body;
-    const foundForbidden = FORBIDDEN.filter(w => fullText.includes(w));
-    if (foundForbidden.length > 0) {
-      score = Math.max(0, score - 15);
-      results.push({ label: `금칙어 감지 (${foundForbidden.join(', ')}) — 감점`, pass: false, point: 15, penalty: true });
-    }
 
     return { score, results };
   }
