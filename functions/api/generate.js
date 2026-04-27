@@ -31,14 +31,23 @@ export async function onRequestPost(context) {
 
     const data = await response.json();
 
+    // [DEBUG] Anthropic API 응답 전체 로그
+    console.log("[generate] status:", response.status);
+    console.log("[generate] data:", JSON.stringify(data, null, 2));
+
     return new Response(JSON.stringify(data), {
+      status: response.status,
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
       },
     });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    console.error("[generate] catch error:", error);
+    return new Response(JSON.stringify({
+      error: error.message,
+      stack: error.stack ?? null,
+    }), {
       status: 500,
       headers: {
         "Content-Type": "application/json",
