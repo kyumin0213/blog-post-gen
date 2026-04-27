@@ -830,12 +830,8 @@
 아래 규칙을 지켜서 JSON만 출력한다. 다른 말 하지 않는다. 코드블록 없이 순수 JSON만.
 
 [필수 규칙]
-1. 첫 100자: "안녕하세요" 절대 금지. 핵심 키워드+연관키워드로 즉시 시작.
-   첫 문장 금지 패턴: "~을 찾고 있다면 ~을 추천합니다" / "~고 있다면 ~추천합니다" / "찾고 있다면" 으로 끝나는 문장.
-   대신 아래 방향으로 시작할 것:
-   • 위치+상황 묘사: "[지역]에서 [키워드]를 고를 때는 [기준]도 중요합니다."
-   • 방문 전 체크포인트: "[키워드]를 찾는 사람이라면 [항목]을 함께 살펴봐야 합니다."
-   • 메뉴·분위기·접근성 묘사로 바로 시작
+1. 첫 100자: "안녕하세요" 절대 금지. 핵심 키워드가 반드시 첫 100자 안에 포함되어야 함.
+   첫 문장을 "~를 추천합니다" "~를 권장합니다"로 끝내지 말 것. 키워드+상황 묘사로 시작.
 2. 제목: 메인키워드1개 + 연관키워드1~2개 자연스럽게 조합 (1+2 공식)
 3. 키워드 배치: 본문 처음·중간·끝. 멀직하게
 4. 키워드 빈도: 최대 7회 이하 (절대 준수)
@@ -872,12 +868,8 @@
 아래 규칙을 지켜서 JSON만 출력한다. 다른 말 하지 않는다. 코드블록 없이 순수 JSON만.
 
 [필수 규칙]
-1. 첫 100자: "안녕하세요" 절대 금지. 핵심 키워드+연관키워드로 즉시 시작.
-   첫 문장 금지 패턴: "~을 찾고 있다면 ~을 추천합니다" / "~고 있다면 ~추천합니다" / "찾고 있다면" 으로 끝나는 문장.
-   대신 아래 방향으로 시작할 것:
-   • 위치+상황 묘사: "[지역]에서 [키워드]를 고를 때는 [기준]도 중요합니다."
-   • 방문 전 체크포인트: "[키워드]를 찾는 사람이라면 [항목]을 함께 살펴봐야 합니다."
-   • 메뉴·분위기·접근성 묘사로 바로 시작
+1. 첫 100자: "안녕하세요" 절대 금지. 핵심 키워드가 반드시 첫 100자 안에 포함되어야 함.
+   첫 문장을 "~를 추천합니다" "~를 권장합니다"로 끝내지 말 것. 키워드+상황 묘사로 시작.
 2. 제목: 메인키워드1개 + 연관키워드1~2개 자연스럽게 조합 (1+2 공식)
    예) "성수 감성카페 주차 되는 곳 (브런치, 디저트, 인스타 명소)"
 3. 키워드 배치: 본문 처음·중간·끝. 멀직하게
@@ -915,12 +907,8 @@
 아래 규칙을 지켜서 JSON만 출력한다. 다른 말 하지 않는다. 코드블록 없이 순수 JSON만.
 
 [필수 규칙]
-1. 첫 100자: "안녕하세요" 절대 금지. 핵심 키워드+연관키워드로 즉시 시작.
-   첫 문장 금지 패턴: "~을 찾고 있다면 ~을 추천합니다" / "~고 있다면 ~추천합니다" / "찾고 있다면" 으로 끝나는 문장.
-   대신 아래 방향으로 시작할 것:
-   • 위치+상황 묘사: "[지역]에서 [키워드]를 고를 때는 [기준]도 중요합니다."
-   • 방문 전 체크포인트: "[키워드]를 찾는 사람이라면 [항목]을 함께 살펴봐야 합니다."
-   • 메뉴·분위기·접근성 묘사로 바로 시작
+1. 첫 100자: "안녕하세요" 절대 금지. 핵심 키워드가 반드시 첫 100자 안에 포함되어야 함.
+   첫 문장을 "~를 추천합니다" "~를 권장합니다"로 끝내지 말 것. 키워드+상황 묘사로 시작.
 2. 제목: 메인키워드1개 + 연관키워드1~2개 자연스럽게 조합 (1+2 공식)
    예) "홍대 네일샵 가격 솔직 후기 (젤네일, 아트, 예약 방법)"
 3. 키워드 배치: 본문 처음·중간·끝. 멀직하게
@@ -1282,7 +1270,7 @@ JSON 외 텍스트 절대 금지.
     document.getElementById('result-body').value = body;
 
     const firstTitle = data.titles?.[0] ?? '';
-    const keyword = pickKeyword(data.keywords, firstTitle);
+    const keyword = pickKeyword(data.keywords, firstTitle, body);
     renderScore(firstTitle, body, keyword);
 
     const allText = (data.titles || []).join(' ') + ' ' + body;
@@ -1322,23 +1310,35 @@ JSON 외 텍스트 절대 금지.
     document.querySelectorAll('.title-option').forEach((el, i) =>
       el.classList.toggle('selected', i === idx));
     if (currentResult) {
-      renderScore(titles[idx], currentResult.body || '', pickKeyword(currentResult.keywords, titles[idx]));
+      renderScore(titles[idx], currentResult.body || '', pickKeyword(currentResult.keywords, titles[idx], currentResult.body || ''));
     }
   }
 
   // ── 키워드 선택 ──────────────────────────────────────────
-  // 우선순위: ① 제목에 포함된 키워드 중 가장 긴 것
-  //           ② 공백 없는 단어 중 가장 짧은 것 (2자 이상)
-  //           ③ 전체 배열에서 가장 짧은 것
-  function pickKeyword(keywords, title = '') {
+  // 우선순위: ① 제목+본문 모두에 포함된 키워드 중 가장 긴 것
+  //           ② 본문에만 포함된 키워드 중 가장 긴 것
+  //           ③ 제목에만 포함된 키워드 중 가장 긴 것
+  //           ④ 공백 없는 키워드 중 가장 짧은 것 (2자 이상)
+  //           ⑤ 전체 배열에서 가장 짧은 것
+  function pickKeyword(keywords, title = '', body = '') {
     if (!keywords || !keywords.length) return '';
+    const valid = keywords.filter(k => k && k.length >= 2);
+    if (!valid.length) return '';
+    if (title && body) {
+      const inBoth = valid.filter(k => title.includes(k) && body.includes(k));
+      if (inBoth.length) return inBoth.sort((a, b) => b.length - a.length)[0];
+    }
+    if (body) {
+      const inBody = valid.filter(k => body.includes(k));
+      if (inBody.length) return inBody.sort((a, b) => b.length - a.length)[0];
+    }
     if (title) {
-      const inTitle = keywords.filter(k => k && title.includes(k));
+      const inTitle = valid.filter(k => title.includes(k));
       if (inTitle.length) return inTitle.sort((a, b) => b.length - a.length)[0];
     }
-    const singles = keywords.filter(k => k && !k.includes(' ') && k.length >= 2);
+    const singles = valid.filter(k => !k.includes(' '));
     if (singles.length) return singles.sort((a, b) => a.length - b.length)[0];
-    return [...keywords].sort((a, b) => a.length - b.length)[0];
+    return valid.sort((a, b) => a.length - b.length)[0];
   }
 
   // ── 노출 점수 ──────────────────────────────────────────
