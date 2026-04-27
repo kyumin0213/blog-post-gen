@@ -1319,22 +1319,33 @@ JSON 외 텍스트 절대 금지.
       }
     });
     const sort = arr => arr.sort((a, b) => b.length - a.length);
+    // 반복 횟수 체크 (9회 이하가 SEO 안전)
+    const countOf = k => {
+      const esc = k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      return (body.match(new RegExp(esc, 'g')) || []).length;
+    };
+    const safe = k => countOf(k) <= 9;
     // 본문 구간 분리 — 점수 체크와 동일 기준
     const head = body.slice(0, 150);
     const mid  = body.slice(Math.floor(body.length * 0.3), Math.floor(body.length * 0.7));
     const tail = body.slice(Math.floor(body.length * 0.8));
+    // 각 단계에서 9회 이하 우선, 없으면 초과 허용
+    const pick = candidates => {
+      const s = sort(candidates.filter(safe));
+      return s.length ? s[0] : sort(candidates)[0];
+    };
     // 1순위: 제목 + 처음 + 중간 + 마지막 모두 포함 (만점 후보)
-    const inAll = sort(expanded.filter(k => title.includes(k) && head.includes(k) && mid.includes(k) && tail.includes(k)));
-    if (inAll.length) return inAll[0];
-    // 2순위: 제목 + 중간 + 마지막 (90점 가능)
-    const inTitleMidTail = sort(expanded.filter(k => title.includes(k) && mid.includes(k) && tail.includes(k)));
-    if (inTitleMidTail.length) return inTitleMidTail[0];
+    const inAll = expanded.filter(k => title.includes(k) && head.includes(k) && mid.includes(k) && tail.includes(k));
+    if (inAll.length) return pick(inAll);
+    // 2순위: 제목 + 중간 + 마지막
+    const inTitleMidTail = expanded.filter(k => title.includes(k) && mid.includes(k) && tail.includes(k));
+    if (inTitleMidTail.length) return pick(inTitleMidTail);
     // 3순위: 제목 + body 어딘가 존재
-    const inTitleBody = sort(expanded.filter(k => title.includes(k) && body.includes(k)));
-    if (inTitleBody.length) return inTitleBody[0];
+    const inTitleBody = expanded.filter(k => title.includes(k) && body.includes(k));
+    if (inTitleBody.length) return pick(inTitleBody);
     // 4순위: body에만 존재
-    const inBody = sort(expanded.filter(k => body.includes(k)));
-    if (inBody.length) return inBody[0];
+    const inBody = expanded.filter(k => body.includes(k));
+    if (inBody.length) return pick(inBody);
     const singles = valid.filter(k => !k.includes(' '));
     if (singles.length) return singles.sort((a, b) => a.length - b.length)[0];
     return valid.sort((a, b) => a.length - b.length)[0];
