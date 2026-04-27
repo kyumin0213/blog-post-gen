@@ -841,6 +841,11 @@
 9. 마지막 문단: 업체명+주소+전화번호+예약/문의 CTA 포함
 10. 효과 보장 표현 금지, 대신 "~에 도움이 돼요" 형태
 
+[절대 규칙 — 할루시네이션 금지]
+업체명·주소·전화번호 외에 메뉴·가격·분위기·서비스에 대한 구체적 정보가 주어지지 않으면 절대 지어내지 말 것.
+모르는 정보는 일반적인 표현으로 대체하거나 생략할 것.
+지어낸 정보는 네이버 마이너스 요소이며 사용자에게 직접적 피해를 줌.
+
 [출력 형식 — 순수 JSON만]
 해시태그 반드시 #포함, 정확히 10개.
 {"searchIntent":"","keywords":[],"titles":["","",""],"body":"","hashtags":["#태그1","#태그2","#태그3","#태그4","#태그5","#태그6","#태그7","#태그8","#태그9","#태그10"],"nextIdeas":["","",""]}`,
@@ -861,6 +866,11 @@
 9. 마지막 문단: 업체명+주소+전화번호+방문/예약 CTA 포함
 10. 본문에 인테리어 분위기, 대표 메뉴, 접근성 묘사 포함
 
+[절대 규칙 — 할루시네이션 금지]
+업체명·주소·전화번호 외에 메뉴·가격·분위기·서비스에 대한 구체적 정보가 주어지지 않으면 절대 지어내지 말 것.
+모르는 정보는 일반적인 표현으로 대체하거나 생략할 것.
+지어낸 정보는 네이버 마이너스 요소이며 사용자에게 직접적 피해를 줌.
+
 [출력 형식 — 순수 JSON만]
 해시태그 반드시 #포함, 정확히 10개.
 {"searchIntent":"","keywords":[],"titles":["","",""],"body":"","hashtags":["#태그1","#태그2","#태그3","#태그4","#태그5","#태그6","#태그7","#태그8","#태그9","#태그10"],"nextIdeas":["","",""]}`,
@@ -880,6 +890,11 @@
 8. 글자 수 1200자 이상
 9. 마지막 문단: 업체명+주소+전화번호+예약/문의 CTA 포함
 10. 본문에 시술 과정, 결과 묘사, 분위기, 가격대 포함
+
+[절대 규칙 — 할루시네이션 금지]
+업체명·주소·전화번호 외에 메뉴·가격·분위기·서비스에 대한 구체적 정보가 주어지지 않으면 절대 지어내지 말 것.
+모르는 정보는 일반적인 표현으로 대체하거나 생략할 것.
+지어낸 정보는 네이버 마이너스 요소이며 사용자에게 직접적 피해를 줌.
 
 [출력 형식 — 순수 JSON만]
 해시태그 반드시 #포함, 정확히 10개.
@@ -1212,7 +1227,7 @@ JSON 외 텍스트 절대 금지.
     const body = data.body || '';
     document.getElementById('result-body').value = body;
 
-    const keyword = data.keywords?.[0] ?? '';
+    const keyword = pickKeyword(data.keywords);
     renderScore(data.titles?.[0] ?? '', body, keyword);
 
     const allText = (data.titles || []).join(' ') + ' ' + body;
@@ -1252,8 +1267,14 @@ JSON 외 텍스트 절대 금지.
     document.querySelectorAll('.title-option').forEach((el, i) =>
       el.classList.toggle('selected', i === idx));
     if (currentResult) {
-      renderScore(titles[idx], currentResult.body || '', currentResult.keywords?.[0] ?? '');
+      renderScore(titles[idx], currentResult.body || '', pickKeyword(currentResult.keywords));
     }
+  }
+
+  // ── 키워드 선택: 가장 짧은 단어 (긴 문자열 매칭 방지) ──────────────
+  function pickKeyword(keywords) {
+    if (!keywords || !keywords.length) return '';
+    return [...keywords].sort((a, b) => a.length - b.length)[0];
   }
 
   // ── 노출 점수 ──────────────────────────────────────────
