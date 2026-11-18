@@ -22,6 +22,19 @@ npx wrangler pages deploy . --project-name blog-post-gen
 
 배포 후 Cloudflare Pages 대시보드에서 `ANTHROPIC_API_KEY` 환경변수 설정 필요.
 
+## 접속 코드
+
+`/api/generate` 는 접속 코드 인증을 거친다. 코드가 맞지 않으면 Anthropic API를 호출하지 않고
+`401` 을 반환한다.
+
+- 우선순위: Cloudflare Pages 환경변수 `ACCESS_PASSWORD` → 코드에 정의된 기본값
+- 전달 방법: 요청 헤더 `x-access-code` 또는 JSON 본문의 `accessCode` / `password`
+- 비교는 앞뒤 공백·대소문자를 무시한다.
+- 화면 상단의 `🔒 접속 코드` 칸에 입력하면 브라우저(localStorage)에 저장되어 이후 자동 전송된다.
+
+코드를 바꾸려면 Cloudflare Pages 대시보드 → Settings → Environment variables 에서
+`ACCESS_PASSWORD` 를 추가하는 것이 가장 안전하다 (저장소에 값이 남지 않는다).
+
 ## 지원 업종
 
 - `pilates` — 필라테스·헬스·요가

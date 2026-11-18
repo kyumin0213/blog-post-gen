@@ -53,6 +53,66 @@
     }
     .subtitle { font-size: 13px; color: var(--text-3); margin-bottom: 16px; }
 
+    /* ── 접속 코드 ── */
+    .access-row { display: flex; justify-content: flex-end; margin: -6px 0 14px; }
+    .access-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      padding: 5px 11px 5px 12px;
+      font-size: 12px;
+      color: var(--text-2);
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+    }
+    .access-pill .access-lock { font-size: 11px; line-height: 1; }
+    .access-pill .access-label { font-weight: 600; white-space: nowrap; }
+    .access-input {
+      width: 104px;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      padding: 2px 0;
+      letter-spacing: 0.5px;
+    }
+    .access-input::placeholder { color: var(--text-3); font-weight: 500; letter-spacing: 0; }
+    .access-btn {
+      border: none;
+      background: var(--blue);
+      color: #fff;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 12px;
+      padding: 4px 10px;
+      cursor: pointer;
+    }
+    .access-btn:hover { filter: brightness(0.95); }
+    .access-link {
+      border: none;
+      background: transparent;
+      color: var(--blue);
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 0;
+      text-decoration: underline;
+    }
+    .access-pill.on {
+      border-color: #CFE3D8;
+      background: var(--cg-pale);
+      color: var(--cg);
+    }
+    .access-pill.on .access-link { color: var(--cg); }
+    .access-pill.attention { border-color: var(--red); }
+
     /* ── 탭 네비 ── */
     .tab-nav {
       display: flex;
@@ -456,6 +516,19 @@
 
   <h1>📱 SNS 포스팅 생성기</h1>
   <p class="subtitle">업체 설정 후 주제를 입력하면 블로그·인스타그램·카드뉴스를 자동으로 만들어줘요.</p>
+
+  <!-- ── 접속 코드 ── -->
+  <div class="access-row">
+    <div class="access-pill" id="access-pill">
+      <span class="access-lock" id="access-lock">🔒</span>
+      <span class="access-label" id="access-label">접속 코드</span>
+      <input type="password" id="access-code" class="access-input" placeholder="코드 입력"
+             autocomplete="current-password"
+             onkeydown="if (event.key === 'Enter') { event.preventDefault(); saveAccessCode(); }">
+      <button class="access-btn" id="access-btn" onclick="saveAccessCode()">확인</button>
+      <button class="access-link" id="access-change" onclick="openAccessEditor()" style="display:none">변경</button>
+    </div>
+  </div>
 
   <!-- 로컬 환경 안내 -->
   <div class="local-notice" id="local-notice" style="display:none">
@@ -1208,9 +1281,84 @@ CTA: 업종에 맞게 자동 선택 (운동→체험/상담, 카페→방문/저
   let cardNewsData       = null;
   let cardNewsHashtagsText  = '';
 
+  // ── 접속 코드 ──────────────────────────────────────────
+  const ACCESS_KEY = 'sns_post_gen_access_code_v1';
+
+  function getAccessCode() {
+    return (localStorage.getItem(ACCESS_KEY) || '').trim();
+  }
+
+  function renderAccessState() {
+    const saved = !!getAccessCode();
+    const pill  = document.getElementById('access-pill');
+    const input = document.getElementById('access-code');
+    const btn   = document.getElementById('access-btn');
+    const chg   = document.getElementById('access-change');
+    const lock  = document.getElementById('access-lock');
+    const label = document.getElementById('access-label');
+
+    pill.classList.remove('attention');
+    if (saved) {
+      pill.classList.add('on');
+      lock.textContent  = '🔓';
+      label.textContent = '접속 코드 저장됨';
+      input.style.display = 'none';
+      btn.style.display   = 'none';
+      chg.style.display   = '';
+    } else {
+      pill.classList.remove('on');
+      lock.textContent  = '🔒';
+      label.textContent = '접속 코드';
+      input.style.display = '';
+      btn.style.display   = '';
+      chg.style.display   = 'none';
+    }
+  }
+
+  function saveAccessCode() {
+    const input = document.getElementById('access-code');
+    const value = input.value.trim();
+    if (!value) { showToast('접속 코드를 입력해주세요', 'warn'); input.focus(); return; }
+    localStorage.setItem(ACCESS_KEY, value);
+    input.value = '';
+    renderAccessState();
+    showToast('접속 코드가 저장됐어요 ✓', 'success');
+  }
+
+  function openAccessEditor() {
+    const input = document.getElementById('access-code');
+    document.getElementById('access-pill').classList.remove('on');
+    document.getElementById('access-lock').textContent = '🔒';
+    document.getElementById('access-label').textContent = '접속 코드';
+    document.getElementById('access-change').style.display = 'none';
+    document.getElementById('access-btn').style.display = '';
+    input.style.display = '';
+    input.value = '';
+    input.focus();
+  }
+
+  // 발급받은 접속 코드가 없으면 API 를 호출하지 않고 입력칸을 열어준다
+  function ensureAccessCode() {
+    if (getAccessCode()) return true;
+    document.getElementById('access-pill').classList.add('attention');
+    openAccessEditor();
+    showToast('접속 코드를 먼저 입력해주세요', 'warn');
+    return false;
+  }
+
+  // 401 응답: 저장된 코드를 비우고 입력칸을 열어 다시 받는다
+  function requireAccessCode() {
+    localStorage.removeItem(ACCESS_KEY);
+    renderAccessState();
+    openAccessEditor();
+    document.getElementById('access-pill').classList.add('attention');
+    showToast('비밀번호가 올바르지 않습니다', 'warn');
+  }
+
   // ── 초기화 ──────────────────────────────────────────
   (function init() {
     loadSettings();
+    renderAccessState();
     if (location.protocol === 'file:' || location.hostname === 'localhost') {
       document.getElementById('local-notice').style.display = 'block';
     }
@@ -1345,12 +1493,13 @@ CTA: 업종에 맞게 자동 선택 (운동→체험/상담, 카페→방문/저
     try {
       res = await fetch('/api/generate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-access-code': getAccessCode() },
         body: JSON.stringify({ systemPrompt, userMessage }),
       });
     } catch (e) {
       throw new Error('NETWORK_ERROR');
     }
+    if (res.status === 401) { requireAccessCode(); throw new Error('INVALID_ACCESS_CODE'); }
     const data = await res.json();
     const text = data.content?.[0]?.text ?? '';
 
@@ -1371,12 +1520,13 @@ CTA: 업종에 맞게 자동 선택 (운동→체험/상담, 카페→방문/저
     try {
       res = await fetch('/api/generate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-access-code': getAccessCode() },
         body: JSON.stringify({ systemPrompt, userMessage }),
       });
     } catch (e) {
       throw new Error('NETWORK_ERROR');
     }
+    if (res.status === 401) { requireAccessCode(); throw new Error('INVALID_ACCESS_CODE'); }
     const data = await res.json();
     const text = data.content?.[0]?.text ?? '';
     return parseBlogResponse(text);
@@ -1386,6 +1536,7 @@ CTA: 업종에 맞게 자동 선택 (운동→체험/상담, 카페→방문/저
   // BLOG 생성
   // ═══════════════════════════
   async function handleGenerate() {
+    if (!ensureAccessCode()) return;
     const settings = checkSettings();
     if (!settings) return;
     const topic = document.getElementById('topic').value.trim();
@@ -1417,8 +1568,9 @@ CTA: 업종에 맞게 자동 선택 (운동→체험/상담, 카페→방문/저
       renderBlogResult(data, topic);
     } catch (e) {
       let msg = '생성 중 오류가 발생했어요. 다시 시도해주세요.';
-      if (e.message === 'JSON_PARSE_ERROR') msg = '응답 파싱 오류. 다시 시도해주세요.';
-      if (e.message === 'NETWORK_ERROR')    msg = '네트워크 오류. 연결을 확인해주세요.';
+      if (e.message === 'JSON_PARSE_ERROR')    msg = '응답 파싱 오류. 다시 시도해주세요.';
+      if (e.message === 'NETWORK_ERROR')       msg = '네트워크 오류. 연결을 확인해주세요.';
+      if (e.message === 'INVALID_ACCESS_CODE') msg = '비밀번호가 올바르지 않습니다. 상단에서 접속 코드를 다시 입력해주세요.';
       errorBox.textContent = msg;
       errorBox.classList.add('show');
     } finally {
@@ -1637,6 +1789,7 @@ CTA: 업종에 맞게 자동 선택 (운동→체험/상담, 카페→방문/저
   // INSTAGRAM 생성
   // ═══════════════════════════
   async function generateTab(type) {
+    if (!ensureAccessCode()) return;
     const settings = checkSettings();
     if (!settings) return;
 
@@ -1668,8 +1821,9 @@ CTA: 업종에 맞게 자동 선택 (운동→체험/상담, 카페→방문/저
 
     } catch (e) {
       let msg = '생성 중 오류가 발생했어요. 다시 시도해주세요.';
-      if (e.message === 'JSON_PARSE_ERROR') msg = '응답 파싱 오류. 다시 시도해주세요.';
-      if (e.message === 'NETWORK_ERROR')    msg = '네트워크 오류. 연결을 확인해주세요.';
+      if (e.message === 'JSON_PARSE_ERROR')    msg = '응답 파싱 오류. 다시 시도해주세요.';
+      if (e.message === 'NETWORK_ERROR')       msg = '네트워크 오류. 연결을 확인해주세요.';
+      if (e.message === 'INVALID_ACCESS_CODE') msg = '비밀번호가 올바르지 않습니다. 상단에서 접속 코드를 다시 입력해주세요.';
       showTabError(type, msg);
     } finally {
       setTabLoading(type, false);
